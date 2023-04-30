@@ -3,11 +3,16 @@ package com.example.a7mworkoutapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.a7mworkoutapp.databinding.ActivityExerciseBinding
+import org.w3c.dom.Text
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var binding: ActivityExerciseBinding
 
     private var restTimer: CountDownTimer? = null
@@ -16,8 +21,10 @@ class ExerciseActivity : AppCompatActivity() {
     private var exTimer: CountDownTimer? = null
     private var exProgress = 0
 
-    private var exList: ArrayList<ExerciseModel>? = null
+    private lateinit var exList: ArrayList<ExerciseModel>
     private var curExPos = -1
+
+    private lateinit var tts: TextToSpeech
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +38,8 @@ class ExerciseActivity : AppCompatActivity() {
         }
 
         exList = Constants.defaultExerciseList()
+
+        tts = TextToSpeech(this, this)
 
         // do the same thing(going back) when you click the back button 'on the device'
         binding.tbEx.setNavigationOnClickListener {
@@ -50,8 +59,10 @@ class ExerciseActivity : AppCompatActivity() {
 
             tvUpcomingExLabel.visibility = View.VISIBLE
             tvUpcomingEx.visibility = View.VISIBLE
-            tvUpcomingEx.text = exList!![curExPos + 1].getName()
+            tvUpcomingEx.text = exList[curExPos + 1].getName()
         }
+
+        speakOut("Take rest for 10 seconds")
 
         if (restTimer != null) {
             restTimer?.cancel()
@@ -92,9 +103,11 @@ class ExerciseActivity : AppCompatActivity() {
             exProgress = 0
         }
 
+        speakOut(exList[curExPos].getName())
+
         with(binding) {
-            ivImg.setImageResource(exList!![curExPos].getImage())
-            tvEx.text = exList!![curExPos].getName()
+            ivImg.setImageResource(exList[curExPos].getImage())
+            tvEx.text = exList[curExPos].getName()
         }
         setExPb()
     }
@@ -123,11 +136,36 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         if (restTimer != null) {
             restTimer?.cancel()
             restProgress = 0
         }
-        super.onDestroy()
+        if (exTimer != null) {
+            exTimer?.cancel()
+            exProgress = 0
+        }
+        if (tts != null) {
+            tts.stop()
+            tts.shutdown()
+        }
         //binding = null
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts.setLanguage(Locale.US) // set US Eng as language for tts
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "This language specified is not suported!")
+            }
+        }
+        else {
+            Log.e("TTS", "Initialization failed!")
+        }
+    }
+
+    private fun speakOut(text: String) {
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
     }
 }
