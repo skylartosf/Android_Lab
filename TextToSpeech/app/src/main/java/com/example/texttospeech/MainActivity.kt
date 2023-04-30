@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 speakOut(binding.et.text.toString())
             }
         }
+
+        binding.btnStop.setOnClickListener {
+            tts?.stop()
+        }
     }
 
     // call to signal the completion of TTS engine initialization
