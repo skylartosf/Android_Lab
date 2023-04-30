@@ -4,11 +4,11 @@
 ```
 main
 ┣ all
-┣ basic
+┣ basic (all로 merge될 예정)
   ┣ TTS
-┣ drawing-app
-┣ 7m-workout-app
-┣ ...
+┣ drawing-app (all로 merge될 예정)
+┣ 7m-workout-app (all로 merge될 예정)
+┣ ... (all로 merge될 예정)
 ```
 1. <b>main</b> : 항상 empty로 유지
 2. <b>all</b> : 전체 프로젝트 파일 모아보기
