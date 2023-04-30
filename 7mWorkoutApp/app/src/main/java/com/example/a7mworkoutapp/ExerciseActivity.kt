@@ -47,6 +47,10 @@ class ExerciseActivity : AppCompatActivity() {
             tvEx.visibility = View.INVISIBLE
             flExercise.visibility = View.INVISIBLE
             ivImg.visibility = View.INVISIBLE
+
+            tvUpcomingExLabel.visibility = View.VISIBLE
+            tvUpcomingEx.visibility = View.VISIBLE
+            tvUpcomingEx.text = exList!![curExPos + 1].getName()
         }
 
         if (restTimer != null) {
@@ -58,7 +62,7 @@ class ExerciseActivity : AppCompatActivity() {
 
     private fun setRestPb() {
         binding.pb.progress = restProgress
-        restTimer = object: CountDownTimer(10000, 1000) {
+        restTimer = object: CountDownTimer(1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 binding.pb.progress = 10 - restProgress
@@ -78,6 +82,9 @@ class ExerciseActivity : AppCompatActivity() {
             tvEx.visibility = View.VISIBLE
             flExercise.visibility = View.VISIBLE
             ivImg.visibility = View.VISIBLE
+
+            tvUpcomingExLabel.visibility = View.GONE
+            tvUpcomingEx.visibility = View.GONE
         }
 
         if (exTimer != null) {
@@ -94,7 +101,7 @@ class ExerciseActivity : AppCompatActivity() {
 
     private fun setExPb() {
         binding.exPb.progress = exProgress
-        exTimer = object: CountDownTimer(30000, 1000) {
+        exTimer = object: CountDownTimer(1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 exProgress++
                 binding.exPb.progress = 30 - exProgress
