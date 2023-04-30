@@ -16,6 +16,9 @@ class ExerciseActivity : AppCompatActivity() {
     private var exTimer: CountDownTimer? = null
     private var exProgress = 0
 
+    private var exList: ArrayList<ExerciseModel>? = null
+    private var curExPos = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -26,6 +29,8 @@ class ExerciseActivity : AppCompatActivity() {
         if (supportActionBar != null) { // activate back button on toolbar
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
+
+        exList = Constants.defaultExerciseList()
 
         // do the same thing(going back) when you click the back button 'on the device'
         binding.tbEx.setNavigationOnClickListener {
@@ -52,6 +57,7 @@ class ExerciseActivity : AppCompatActivity() {
                 binding.tvTimer.text = (10 - restProgress).toString()
             }
             override fun onFinish() {
+                curExPos++
                 setupExView()
             }
         }.start()
