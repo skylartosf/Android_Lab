@@ -41,6 +41,14 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setupRestView() {
+        with(binding) {
+            flRest.visibility = View.VISIBLE
+            tvTitle.visibility = View.VISIBLE
+            tvEx.visibility = View.INVISIBLE
+            flExercise.visibility = View.INVISIBLE
+            ivImg.visibility = View.INVISIBLE
+        }
+
         if (restTimer != null) {
             restTimer?.cancel()
             restProgress = 0
@@ -64,12 +72,22 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setupExView() {
-        binding.flProgressBar.visibility = View.INVISIBLE
-        binding.tvTitle.text = "Exercise Name..."
-        binding.flExercise.visibility = View.VISIBLE
+        with(binding) {
+            flRest.visibility = View.INVISIBLE
+            tvTitle.visibility = View.INVISIBLE
+            tvEx.visibility = View.VISIBLE
+            flExercise.visibility = View.VISIBLE
+            ivImg.visibility = View.VISIBLE
+        }
+
         if (exTimer != null) {
             exTimer?.cancel()
             exProgress = 0
+        }
+
+        with(binding) {
+            ivImg.setImageResource(exList!![curExPos].getImage())
+            tvEx.text = exList!![curExPos].getName()
         }
         setExPb()
     }
@@ -83,11 +101,16 @@ class ExerciseActivity : AppCompatActivity() {
                 binding.tvExTimer.text = (30 - exProgress).toString()
             }
             override fun onFinish() {
-                Toast.makeText(
-                    this@ExerciseActivity,
-                    "30 seconds are over, lets go to the rest view",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (curExPos < exList?.size!! - 1) {
+                    setupRestView()
+                }
+                else {
+                    Toast.makeText(
+                        this@ExerciseActivity,
+                        "Congrats! You've completed 7m workout!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }.start()
     }
