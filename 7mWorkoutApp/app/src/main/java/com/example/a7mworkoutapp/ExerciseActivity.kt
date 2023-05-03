@@ -1,5 +1,7 @@
 package com.example.a7mworkoutapp
 
+import android.media.MediaPlayer
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -25,6 +27,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var curExPos = -1
 
     private lateinit var tts: TextToSpeech
+    private lateinit var player: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +53,16 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun setupRestView() {
+
+        try {
+            val soundURI = Uri.parse("android.resource://com.example.a7mworkoutapp/" + R.raw.press_start)
+            player = MediaPlayer.create(applicationContext, soundURI)
+            player.isLooping = false
+            player.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         with(binding) {
             flRest.visibility = View.VISIBLE
             tvTitle.visibility = View.VISIBLE
@@ -73,12 +86,13 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun setRestPb() {
         binding.pb.progress = restProgress
-        restTimer = object: CountDownTimer(1000, 1000) {
+        restTimer = object : CountDownTimer(2000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
                 binding.pb.progress = 10 - restProgress
                 binding.tvTimer.text = (10 - restProgress).toString()
             }
+
             override fun onFinish() {
                 curExPos++
                 setupExView()
@@ -114,17 +128,17 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun setExPb() {
         binding.exPb.progress = exProgress
-        exTimer = object: CountDownTimer(1000, 1000) {
+        exTimer = object : CountDownTimer(1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 exProgress++
                 binding.exPb.progress = 30 - exProgress
                 binding.tvExTimer.text = (30 - exProgress).toString()
             }
+
             override fun onFinish() {
                 if (curExPos < exList?.size!! - 1) {
                     setupRestView()
-                }
-                else {
+                } else {
                     Toast.makeText(
                         this@ExerciseActivity,
                         "Congrats! You've completed 7m workout!",
@@ -149,6 +163,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             tts.stop()
             tts.shutdown()
         }
+        if (player!= null) {
+            player.stop()
+        }
         //binding = null
     }
 
@@ -156,11 +173,11 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts.setLanguage(Locale.US) // set US Eng as language for tts
             if (result == TextToSpeech.LANG_MISSING_DATA
-                || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                || result == TextToSpeech.LANG_NOT_SUPPORTED
+            ) {
                 Log.e("TTS", "This language specified is not suported!")
             }
-        }
-        else {
+        } else {
             Log.e("TTS", "Initialization failed!")
         }
     }
