@@ -6,25 +6,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recycler_view.databinding.ItemRvBinding
 
 class Adapter(val dataList: ArrayList<DataModel>):
-    RecyclerView.Adapter<Adapter.ViewHolder>() {
-
-    inner class ViewHolder(val itemRvBinding: ItemRvBinding)
-        : RecyclerView.ViewHolder(itemRvBinding.root) {
-        fun bind(item: DataModel) {
-            with (itemRvBinding) {
-                tvTitle.text = item.title
-                tvTime.text = item.time
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Adapter.ViewHolder {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(ItemRvBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
-    override fun onBindViewHolder(holder: Adapter.ViewHolder, position: Int) {
-        val item = dataList[position]
-        holder.bind(item)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        (holder as ViewHolder).bind(dataList[position])
     }
 
     override fun getItemCount(): Int {
