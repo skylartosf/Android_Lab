@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "BasicDemo"
 include ':text-to-speech'
+include ':recycler-view'
