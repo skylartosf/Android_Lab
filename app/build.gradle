@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'com.google.gms.google-services'
+    id 'com.google.gms.google-services' // Google services Gradle plugin
 }
 
 android {
@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:31.4.0')
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
 
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
@@ -69,4 +69,3 @@ dependencies {
     // 트위터 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT를 넘겨준다
     //implementation 'com.twitter.sdk.android:twitter:3.1.1'
 }
-apply plugin: 'com.google.gms.google-services'
