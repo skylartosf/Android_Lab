@@ -39,11 +39,34 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    // Google Material Design
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.firebase:firebase-auth:21.1.0' // Firebase 로그인을 도와준다
-    implementation 'com.google.android.gms:play-services-auth:20.5.0' // Google Social Login
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:31.4.0')
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-auth-ktx'
+
+    // Firebase 로그인을 관리하는 라이브러리(모듈)
+    // 주 기능으로 AuthStateChangeListner, 이메일 로그인 기능, Credential(인증서)를 생성해 Firebase로 넘겨주는 기능을 가진다
+    //implementation 'com.google.firebase:firebase-auth:21.1.0'
+
+    // Google 소셜 로그인 지원
+    // 구글 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT(Json Web Token)을 발급해주는 기능을 가진다
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
+    // Facebook 소셜 로그인 지원
+    // 페이스북 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT를 넘겨준다
+    implementation 'com.facebook.android:facebook-login:latest.release'
+
+    // Twitter 라이브러리
+    // 트위터 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT를 넘겨준다
+    //implementation 'com.twitter.sdk.android:twitter:3.1.1'
 }
+apply plugin: 'com.google.gms.google-services'
