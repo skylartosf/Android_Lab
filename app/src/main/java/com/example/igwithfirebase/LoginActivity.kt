@@ -1,17 +1,22 @@
 package com.example.igwithfirebase
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.igwithfirebase.databinding.ActivityLoginBinding
 import com.facebook.CallbackManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
 
 class LoginActivity : AppCompatActivity() {
@@ -19,6 +24,9 @@ class LoginActivity : AppCompatActivity() {
 
     // Firebase Authentication 관리 class
     private lateinit var auth: FirebaseAuth
+
+    // 구글 로그인 관리 클래스
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +36,15 @@ class LoginActivity : AppCompatActivity() {
         // Firebase 로그인 통합 관리하는 Object 생성
         auth = FirebaseAuth.getInstance()
 
+        // 구글 로그인 옵션
+        var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id)) // google-services.json가 자동으로 default_web_client_id라는 string 추가해줌
+            .requestEmail()
+            .build()
+
+        // 구글 로그인 클래스를 만듦
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
         // 로그인 버튼들 세팅
         with(binding) {
             btnLoginEmail.setOnClickListener { emailLogin() }
@@ -36,6 +53,8 @@ class LoginActivity : AppCompatActivity() {
             btnLoginTwitter.setOnClickListener { twitterLogin() }
         }
     }
+
+    /* 01 : 이메일 로그인 - start */
 
     private fun emailLogin() {
         if (binding.etEmail.text.toString().isNullOrEmpty() || binding.etPw.text.toString().isNullOrEmpty()) {
@@ -79,9 +98,54 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun googleLogin() {
-        TODO("Not yet implemented")
+    /* 01 : 이메일 로그인 - finish */
+
+    /* 02 : 구글 로그인 - start */
+
+    private val launcher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                handleResults(task)
+            }
+        }
+
+    private fun handleResults(task: Task<GoogleSignInAccount>) {
+        if (task.isSuccessful) {
+            val account: GoogleSignInAccount? = task.result
+            if (account != null) {
+                updateUI(account)
+            }
+        }
+        else {
+            Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
+
+    private fun updateUI(account: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        auth.signInWithCredential(credential).addOnCompleteListener {
+            if (it.isSuccessful) {
+                moveToMainPage(auth?.currentUser)
+            }
+            else {
+                Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun googleLogin() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        val gsa: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
+        if (gsa != null) { // 기존에 로그인 했던 계정이 남아있으면
+            googleSignInClient.signOut() // 그거 로그아웃 -> 그래야 다른 구글 계정도 선택 가능
+        }
+        val signInIntent = googleSignInClient?.signInIntent
+        launcher.launch(signInIntent)
+    }
+
+    /* 02 : 구글 로그인 - finish */
 
     private fun facebookLogin() {
         TODO("Not yet implemented")
@@ -95,7 +159,10 @@ class LoginActivity : AppCompatActivity() {
         // user is signed in
         if (user != null) {
             Toast.makeText(this, getString(R.string.signin_complete), Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
+            val intent: Intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("email", user.email)
+            intent.putExtra("name", user.displayName)
+            startActivity(intent)
             finish()
         }
     }

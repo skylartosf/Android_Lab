@@ -4,15 +4,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="20dp"
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tv_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="20dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="great@gmail.com" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_email"
+        tools:text="Subak Lee" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_signout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:text="SIGN OUT"
+        android:textColor="@color/white"
+        android:background="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
