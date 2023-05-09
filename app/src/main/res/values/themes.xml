@@ -12,5 +12,9 @@
         <item name="colorButtonNormal">@color/colorWhite</item>
     </style>
 
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar" >
+        <item name="colorControlNormal">@color/black</item>
+    </style>
+
     <style name="Theme.IgWithFirebase" parent="Base.Theme.IgWithFirebase" />
 </resources>

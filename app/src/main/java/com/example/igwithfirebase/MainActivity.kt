@@ -17,6 +17,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.myToolbar)
+        if (supportActionBar != null) { // activate back button on toolbar
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+
         auth = FirebaseAuth.getInstance()
 
         val email = intent.getStringExtra("email")
@@ -28,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             ivProfile.load(profileUrl)
         }
 
+        /*
         binding.btnSignout.setOnClickListener {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -42,5 +48,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        */
     }
 }
