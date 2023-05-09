@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
 import com.example.igwithfirebase.nav.AddPhotoActivity
 import com.example.igwithfirebase.nav.FavAlarmFragment
-import com.example.igwithfirebase.nav.HomeFeedFragment
+import com.example.igwithfirebase.nav.homeFeed.HomeFeedFragment
 import com.example.igwithfirebase.nav.SearchGalleryFragment
 import com.example.igwithfirebase.nav.UserAccountFragment
 import com.google.firebase.auth.FirebaseAuth

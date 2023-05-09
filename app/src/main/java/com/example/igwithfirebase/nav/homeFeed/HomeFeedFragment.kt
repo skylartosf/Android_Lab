@@ -1,4 +1,4 @@
-package com.example.igwithfirebase.nav
+package com.example.igwithfirebase.nav.homeFeed
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
