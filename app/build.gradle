@@ -61,10 +61,10 @@ dependencies {
 
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:32.0.0')
-
-    // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
+
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
 
     // Firebase 로그인을 관리하는 라이브러리(모듈)
     // 주 기능으로 AuthStateChangeListner, 이메일 로그인 기능, Credential(인증서)를 생성해 Firebase로 넘겨주는 기능을 가진다
@@ -87,4 +87,7 @@ dependencies {
     // Coil : 코루틴으로 만들어진 Android 백엔드 이미지 로딩 라이브러리
     // https://coil-kt.github.io/coil/README-ko/
     implementation("io.coil-kt:coil:2.3.0")
+
+    // Firebase 데이터베이스의 2가지 RealtimeDatabase와 Firestore, 중에 Firestore
+    implementation 'com.google.firebase:firebase-firestore'
 }
