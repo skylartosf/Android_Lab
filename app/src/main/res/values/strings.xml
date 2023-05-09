@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">IgWithFirebase</string>
-    <string name="facebook_app_id">FaceBook App Key</string>
-    <string name="fb_login_protocol_scheme">fbFacebook App Key</string>
-    <string name="com.twitter.sdk.android.CONSUMER_KEY">트위터 CONSUMER KEY</string>
-    <string name="com.twitter.sdk.android.CONSUMER_SECRET">트위터 SECRET KEY</string>
 
     <!-- Sign In -->
     <string name="email">Email</string>

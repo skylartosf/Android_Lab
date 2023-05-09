@@ -4,6 +4,9 @@ plugins {
     id 'com.google.gms.google-services' // Google services Gradle plugin
 }
 
+def Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     namespace 'com.example.igwithfirebase'
     compileSdk 33
@@ -16,6 +19,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "facebook_app_id", properties.getProperty("fb.app.id"))
+        buildConfigField("String", "fb_login_protocol_scheme", properties.getProperty("fb.login.protocol.scheme"))
+        buildConfigField("String", "facebook_client_token", properties.getProperty("fb.client.token"))
+
+        buildConfigField("String", "twitter_consumer_key", properties.getProperty("twitter.consumer.key"))
+        buildConfigField("String", "twitter_consumer_secret", properties.getProperty("twitter.consumer.secret"))
     }
 
     buildTypes {
@@ -63,9 +73,15 @@ dependencies {
 
     // Facebook 소셜 로그인 지원
     // 페이스북 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT를 넘겨준다
-    implementation 'com.facebook.android:facebook-login:latest.release'
+    //implementation 'com.facebook.android:facebook-login:latest.release'
+    //implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:[8,9)'
 
-    // Twitter 라이브러리
+    // Twitter 라이브러리 - 필요 없음
     // 트위터 로그인을 관리하는 모듈, 인증이 성공할 경우 JWT를 넘겨준다
     //implementation 'com.twitter.sdk.android:twitter:3.1.1'
+
+    // Coil : 코루틴으로 만들어진 Android 백엔드 이미지 로딩 라이브러리
+    // https://coil-kt.github.io/coil/README-ko/
+    implementation("io.coil-kt:coil:2.3.0")
 }

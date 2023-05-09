@@ -3,7 +3,7 @@ package com.example.igwithfirebase
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.igwithfirebase.databinding.ActivityLoginBinding
+import coil.load
 import com.example.igwithfirebase.databinding.ActivityMainBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -21,9 +21,11 @@ class MainActivity : AppCompatActivity() {
 
         val email = intent.getStringExtra("email")
         val displayName = intent.getStringExtra("name")
+        val profileUrl = intent.getStringExtra("profile")
         with(binding) {
             tvEmail.text = email
             tvName.text = displayName
+            ivProfile.load(profileUrl)
         }
 
         binding.btnSignout.setOnClickListener {
