@@ -1,10 +1,15 @@
 package com.example.igwithfirebase
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -19,6 +24,22 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
+
+    private val permResultLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
+                Log.d("STARBUCKS", "You got the permission!")
+                startActivity(Intent(this, AddPhotoActivity::class.java))
+            } else {
+                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
+                Log.d("STARBUCKS", "You didn't get the permission!")
+            }
+        }
+
+    private var permCheck = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -29,8 +50,17 @@ class MainActivity : AppCompatActivity() {
         setNavigation()
         binding.bottomNav.selectedItemId = R.id.nav_home
 
-        // 앨범 접근 권한 요청
-        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+        /* 앨범 접근 권한 요청
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            // showRationaleDialog() not working
+        }
+        else { // ask for permission
+            readPermResultLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        */
+        //ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+        //permCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
         /*
         val email = intent.getStringExtra("email")
@@ -81,11 +111,31 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_add_photo -> { // (유일하게) activity 호출
-                    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        startActivity(Intent(this, AddPhotoActivity::class.java))
-                    } else {
-                        Toast.makeText(this, "스토리지 읽기 권한이 없습니다", Toast.LENGTH_SHORT).show()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                        shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    ) {
+                        //TODO: showRationaleDialog() not working
+                    } else { // ask for permission
+                        permResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
+
+                    /*
+                    when {
+                        ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED -> {
+                            // You can use the API that requires the permission
+                            startActivity(Intent(this, AddPhotoActivity::class.java))
+                        }
+                        shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                           // explain to the user why your app needs this permission
+                        }
+                        else -> {
+                            // You can directly ask for the permission
+                            Log.d("permission", "asking for permission!")
+                            readPermResultLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                            //Toast.makeText(this, "스토리지 읽기 권한이 없습니다", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    */
                     return@setOnItemSelectedListener true
                 }
 
@@ -115,5 +165,24 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fl_main_content, fragment)
             .commit()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> {
+                if ((grantResults.size > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("STARBUCKS", "You finally got the permission!")
+                    startActivity(Intent(this, AddPhotoActivity::class.java))
+                }
+            }
+            else -> {
+                Log.d("STARBUCKS", "You, again, failed to get permission!")
+            }
+        }
     }
 }

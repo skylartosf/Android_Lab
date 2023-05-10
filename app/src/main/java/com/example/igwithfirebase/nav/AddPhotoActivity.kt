@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.databinding.ActivityAddPhotoBinding
-import com.example.igwithfirebase.databinding.DialogUploadBinding
+import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
 import com.example.igwithfirebase.nav.homeFeed.postDTO
 import com.google.common.io.Files.getFileExtension
 import com.google.firebase.auth.FirebaseAuth
@@ -36,13 +36,11 @@ class AddPhotoActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
     private var photoUri: Uri? = null
-    //private var photoFilePath: String? = null
     // Registers a photo picker activity launcher in single-select mode
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         // Callback is invoked after the user selects a media item or closes the photo picker
         if (uri != null) {
             Log.d("PhotoPicker", "Selected URI: $uri")
-            //photoFilePath = getRealPathFromUri(uri)
             photoUri = uri
             binding.ivPhoto.load(uri)
         }
@@ -74,11 +72,8 @@ class AddPhotoActivity : AppCompatActivity() {
     private fun toUploadPhoto() {
         binding.btnUpload.setOnClickListener {
             if (photoUri != null) {
-                val loadingDialog = Dialog(this)
-                loadingDialog.setContentView(DialogUploadBinding.inflate(layoutInflater).root)
-                loadingDialog.setCancelable(false)
-                loadingDialog.show()
-                loadingDialog.window!!.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT)
+                val dialog = Dialog(this)
+                setLoadingDialog(dialog)
 
                 val postTime = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
                 val photoFilePath = getRealPathFromUri(photoUri!!)
@@ -107,13 +102,13 @@ class AddPhotoActivity : AppCompatActivity() {
                         // 게시물 데이터 생성
                         firestore.collection("images").document().set(postDTO)
                             .addOnSuccessListener {
-                                loadingDialog.cancel()
+                                dialog.cancel()
                                 Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
                                 finish()
                             }
                     }
                     .addOnFailureListener {
-                        loadingDialog.cancel()
+                        dialog.cancel()
                         finish()
                         Toast.makeText(this, getString(R.string.upload_fail), Toast.LENGTH_SHORT).show()
                         Log.d("PhotoPicker", "Fail to upload on firestore: ${it.message}")
@@ -124,6 +119,18 @@ class AddPhotoActivity : AppCompatActivity() {
                 Log.d("PhotoPicker", "No PhotoUri selected but you've tried to upload this post.")
             }
         }
+    }
+
+    private fun setLoadingDialog(dialog: Dialog) {
+        dialog.setContentView(DialogUploadLoadingBinding.inflate(layoutInflater).root)
+        dialog.setCancelable(false)
+        val params: WindowManager.LayoutParams? = dialog.window?.attributes ?: null
+        if (params != null) {
+            params.width = WindowManager.LayoutParams.MATCH_PARENT
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT
+        }
+        dialog.window?.setAttributes(params)
+        dialog.show()
     }
 
     private fun getRealPathFromUri(uri: Uri): String? {

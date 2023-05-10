@@ -28,18 +28,18 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="30dp"
+        android:background="@color/colorLightGray"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/my_toolbar"
-        tools:src="@drawable/ic_account" />
+        app:layout_constraintTop_toBottomOf="@id/my_toolbar" />
 
     <Button
         android:id="@+id/btn_select_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="70dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:background="@android:color/transparent"
         android:text="@string/select_image"
         android:textColor="@color/black"
@@ -54,9 +54,12 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/et_content_box_border"
+        android:gravity="top|left"
         android:hint="@string/hint_image_content"
-        android:inputType="text"
+        android:inputType="text|textMultiLine"
+        android:lines="10"
         android:padding="10dp"
+        android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_select_photo" />
