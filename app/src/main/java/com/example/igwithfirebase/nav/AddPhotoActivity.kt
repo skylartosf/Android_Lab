@@ -1,11 +1,14 @@
 package com.example.igwithfirebase.nav
 
+import android.app.Dialog
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.PickVisualMediaRequest
@@ -14,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.databinding.ActivityAddPhotoBinding
+import com.example.igwithfirebase.databinding.DialogUploadBinding
 import com.example.igwithfirebase.nav.homeFeed.postDTO
 import com.google.common.io.Files.getFileExtension
 import com.google.firebase.auth.FirebaseAuth
@@ -70,8 +74,15 @@ class AddPhotoActivity : AppCompatActivity() {
     private fun toUploadPhoto() {
         binding.btnUpload.setOnClickListener {
             if (photoUri != null) {
+                val loadingDialog = Dialog(this)
+                loadingDialog.setContentView(DialogUploadBinding.inflate(layoutInflater).root)
+                loadingDialog.setCancelable(false)
+                loadingDialog.show()
+                loadingDialog.window!!.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT)
+
                 val postTime = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-                val imgFileName = "IMAGE_" + postTime + "." + getFileExtension(getRealPathFromUri(photoUri!!))
+                val photoFilePath = getRealPathFromUri(photoUri!!)
+                val imgFileName = "IMAGE_" + postTime + "." + getFileExtension(photoFilePath)
 
                 // 업로드할 위치 + /파일명
                 val storageRef = fbStorage.reference.child("images/$imgFileName")
@@ -83,7 +94,6 @@ class AddPhotoActivity : AppCompatActivity() {
                 // 1. firebase storage에 이미지 업로드
                 storageRef.putFile(photoUri!!)
                     .addOnSuccessListener { taskSnapshot ->
-                        Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
 
                         // 2. firesstore에 해당 이미지를 참조하는 document(postDTO) 생성
                         val postDTO = postDTO(
@@ -96,9 +106,15 @@ class AddPhotoActivity : AppCompatActivity() {
 
                         // 게시물 데이터 생성
                         firestore.collection("images").document().set(postDTO)
-                        finish()
+                            .addOnSuccessListener {
+                                loadingDialog.cancel()
+                                Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
                     }
                     .addOnFailureListener {
+                        loadingDialog.cancel()
+                        finish()
                         Toast.makeText(this, getString(R.string.upload_fail), Toast.LENGTH_SHORT).show()
                         Log.d("PhotoPicker", "Fail to upload on firestore: ${it.message}")
                     }
