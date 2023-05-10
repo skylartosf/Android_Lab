@@ -1,7 +1,6 @@
 package com.example.igwithfirebase.nav
 
 import android.app.Dialog
-import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -10,7 +9,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -18,15 +16,13 @@ import coil.load
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.databinding.ActivityAddPhotoBinding
 import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
-import com.example.igwithfirebase.nav.homeFeed.postDTO
+import com.example.igwithfirebase.nav.model.PostDTO
 import com.google.common.io.Files.getFileExtension
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-
 
 class AddPhotoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPhotoBinding
@@ -91,7 +87,7 @@ class AddPhotoActivity : AppCompatActivity() {
                     .addOnSuccessListener { taskSnapshot ->
 
                         // 2. firesstore에 해당 이미지를 참조하는 document(postDTO) 생성
-                        val postDTO = postDTO(
+                        val postDTO = PostDTO(
                             uid = auth.currentUser?.uid,
                             userIdEmail = auth.currentUser?.email,
                             timestamp = System.currentTimeMillis(),
