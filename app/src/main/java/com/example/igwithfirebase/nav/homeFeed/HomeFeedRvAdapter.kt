@@ -18,19 +18,25 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
-class HomeFeedRvAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+// addapter에서는 원래는 viewModel을 가지고 있음 안 된다
+// 서버 통신은 viewModel에서 끝내야 한다
+// viewModel의 존재 이유? 뷰에 있는 데이터를 관리하기 위함
+
+// observer - 반응을 해야 할 때 쓴다, 주로 서버 통신에서 값 바뀔 때, live data, 예 - edit text 칠 때마다 뭐가 바뀐다면 ?
+
+class HomeFeedRvAdapter(val firestore: FirebaseFirestore?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val postDTOs: ArrayList<PostDTO> = ArrayList()
     private val postUidList: ArrayList<String> = ArrayList()
 
-    private var firestore = FirebaseFirestore.getInstance()
     private var imgSnapshot: ListenerRegistration? = null
+    private val uid = FirebaseAuth.getInstance().currentUser?.uid
 
     init {
-        var uid = FirebaseAuth.getInstance().currentUser?.uid
         firestore?.collection("users")?.document(uid!!)?.get()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 var userDTO = task.result.toObject(FollowDTO::class.java)
                 if (userDTO?.followings != null) {
+                    Log.d("STARBUCKS", "You've got the userDTO")
                     getContents(userDTO?.followings)
                 }
             } else {
@@ -52,14 +58,17 @@ class HomeFeedRvAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                         postUidList.add(snapshot.id)
                     }
                 }
-                notifyDataSetChanged()
+                Log.d("STARBUCKS", "You've got PostDTO for the user")
+                Log.d("STARBUCKS", "size of postDTOs IS ${postDTOs.size}")
+                notifyDataSetChanged() // RecyclerView를 다시 그린다
             }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(
-            ItemHomeFeedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemHomeFeedBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            firestore
         )
     }
 
@@ -77,8 +86,9 @@ class HomeFeedRvAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
     }
 
-    class ViewHolder(private val binding: ItemHomeFeedBinding) :
+    class ViewHolder(private val binding: ItemHomeFeedBinding, val firestore: FirebaseFirestore?) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: PostDTO, profileUrl: Any?, position: Int) {
             binding.ivProfile.load(profileUrl) // profile 사진
             binding.ivProfile.setOnClickListener {// 클릭 시 UserAccountFragment로 이동
@@ -97,7 +107,7 @@ class HomeFeedRvAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             binding.tvContent.text = item.content // 본문 설정
 
             binding.iconFav.setOnClickListener {
-                HomeFeedRvAdapter().clickFav(position)
+                //clickFav(position)
             }
 
             // 좋아요 아이콘 설정
@@ -116,8 +126,6 @@ class HomeFeedRvAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 // TODO: CommentActivity로 intent를 통해 넘어간다
             }
         }
-
-
     }
 
     // 좋아요 버튼 클릭 시

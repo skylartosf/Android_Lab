@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,10 +21,11 @@ import com.example.igwithfirebase.nav.homeFeed.HomeFeedFragment
 import com.example.igwithfirebase.nav.SearchGalleryFragment
 import com.example.igwithfirebase.nav.UserAccountFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
+    private val mainViewModel : MainViewModel by viewModels()
 
     private val permResultLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        auth = FirebaseAuth.getInstance()
+        //auth = FirebaseAuth.getInstance()
 
         setToolbar()
         setNavigation()
@@ -184,5 +186,9 @@ class MainActivity : AppCompatActivity() {
                 Log.d("STARBUCKS", "You, again, failed to get permission!")
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
