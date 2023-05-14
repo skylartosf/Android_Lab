@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".nav.userAccount.UserAccountFragment">
+    tools:context=".activity_main.frag_user.UserAccountFragment">
 
     <ImageView
         android:id="@+id/iv_profile"

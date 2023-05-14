@@ -8,6 +8,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.igwithfirebase.Variables.Constants
+import com.example.igwithfirebase.Variables.UserVars
+import com.example.igwithfirebase.activity_main.MainActivity
 import com.example.igwithfirebase.databinding.ActivityLoginBinding
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -15,7 +18,6 @@ import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -26,7 +28,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
-import java.util.Arrays
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -237,13 +240,23 @@ class LoginActivity : AppCompatActivity() {
     private fun moveToMainPage(user: FirebaseUser?) {
         // user is signed in
         if (user != null) {
+            initUserVars()
             Toast.makeText(this, getString(R.string.signin_complete), Toast.LENGTH_SHORT).show()
             val intent: Intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("email", user.email)
-            intent.putExtra("name", user.displayName)
-            intent.putExtra("profile", user.photoUrl.toString())
+            //intent.putExtra("email", user.email)
+            //intent.putExtra("name", user.displayName)
+            //intent.putExtra("profile", user.photoUrl.toString())
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun initUserVars() {
+        with(UserVars) {
+            storage = FirebaseStorage.getInstance()
+            firestore = FirebaseFirestore.getInstance()
+            auth = FirebaseAuth.getInstance()
+            myUid = auth!!.currentUser?.uid ?: ""
         }
     }
 }

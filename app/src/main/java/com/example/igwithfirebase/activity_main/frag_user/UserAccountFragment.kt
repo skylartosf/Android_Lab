@@ -1,10 +1,8 @@
-package com.example.igwithfirebase.nav.userAccount
+package com.example.igwithfirebase.activity_main.frag_user
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,15 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import coil.load
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.Target
 import com.example.igwithfirebase.LoginActivity
-import com.example.igwithfirebase.MainViewModel
 import com.example.igwithfirebase.R
+import com.example.igwithfirebase.activity_main.MainViewModel
 import com.example.igwithfirebase.databinding.FragmentUserAccountBinding
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.storage.FirebaseStorage
 
 
 class UserAccountFragment : Fragment() {
@@ -33,38 +26,7 @@ class UserAccountFragment : Fragment() {
     private val mainVm: MainViewModel by activityViewModels()  // ViewModel 초기화
     lateinit var myAdapter: UserAccountAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentUserAccountBinding.inflate(inflater, container, false)
-
-        // 기초적인 첫 UserAccountFragment의 UI 설정
-        mainVm.myProfileUrl.observe(viewLifecycleOwner) {
-            if (mainVm.myProfileUrl != null)
-                binding.ivProfile.load(mainVm.myProfileUrl.value)
-        }
-
-        mainVm.getProfile()
-        setAccountPage()
-
-        // 프로필 사진 클릭 시, 프로필 사진 변경 가능
-        binding.ivProfile.setOnClickListener { onClickProfile() }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        mainVm.queryResult.observe(viewLifecycleOwner) {
-            myAdapter = UserAccountAdapter(it)
-            binding.rv.adapter = myAdapter
-        }
-
-        mainVm.getPostsByCurUid()
-    }
-
-    /****************************** 프로필 사진 변경 ******************************/
+    // 프로필 사진 변경 시 앨범에서 사진 1개 선택해오기
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
@@ -76,20 +38,50 @@ class UserAccountFragment : Fragment() {
             } else Log.e("STARBUCKS", "No image for profile selected")
         }
 
-    private fun onClickProfile() {
-        if (ContextCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentUserAccountBinding.inflate(inflater, container, false)
+
+        registerClickEvents()
+        registerObservers()
+
+        setDefaultAccountPage()
+        mainVm.getProfile()
+        mainVm.getPostsByCurUid()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun registerObservers() {
+        // profile 사진 display
+        mainVm.myProfileUrl.observe(viewLifecycleOwner) {
+            if (mainVm.myProfileUrl != null) binding.ivProfile.load(mainVm.myProfileUrl.value)
+        }
+
+        // adapter 설정
+        mainVm.queryResult.observe(viewLifecycleOwner) {
+            myAdapter = UserAccountAdapter(it)
+            binding.rv.adapter = myAdapter
         }
     }
 
-    /***************************************************************************/
+    private fun registerClickEvents() {
+        // 프로필 사진 클릭 시: 프로필 사진 변경 가능
+        binding.ivProfile.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        }
+    }
 
-    private fun setAccountPage() {
+    private fun setDefaultAccountPage() {
         Log.d("STARBUCKS", "curName is ${mainVm.curName}")
 
         // 1. 현재 user 페이지 == 내 페이지 -> 로그아웃 버튼, 툴바 기본 설정

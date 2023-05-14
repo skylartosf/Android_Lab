@@ -1,15 +1,15 @@
-package com.example.igwithfirebase.nav.homeFeed
+package com.example.igwithfirebase.activity_main.frag_home
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.igwithfirebase.MainActivity
+import com.example.igwithfirebase.activity_main.MainActivity
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.databinding.ItemHomeFeedBinding
-import com.example.igwithfirebase.nav.userAccount.UserAccountFragment
-import com.example.igwithfirebase.nav.model.PostDTO
+import com.example.igwithfirebase.model.PostDTO
+import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 
 // notifyDataSetChanged() 언제 써야 돼?
 class HomeFeedAdapter(

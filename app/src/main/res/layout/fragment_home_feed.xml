@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".nav.homeFeed.HomeFeedFragment">
+    tools:context=".activity_main.frag_home.HomeFeedFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_home_feed"

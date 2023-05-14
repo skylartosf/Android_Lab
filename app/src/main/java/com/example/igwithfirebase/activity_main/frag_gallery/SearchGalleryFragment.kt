@@ -1,4 +1,4 @@
-package com.example.igwithfirebase.nav
+package com.example.igwithfirebase.activity_main.frag_gallery
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -8,11 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.igwithfirebase.R
 
-class FavAlarmFragment : Fragment() {
+class SearchGalleryFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_fav_alarm, container, false)
+        return inflater.inflate(R.layout.fragment_search_gallery, container, false)
     }
 }

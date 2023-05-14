@@ -1,4 +1,4 @@
-package com.example.igwithfirebase
+package com.example.igwithfirebase.activity_main
 
 import android.Manifest
 import android.content.Intent
@@ -12,12 +12,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import com.example.igwithfirebase.activity_main.act_post.PostActivity
+import com.example.igwithfirebase.R
+import com.example.igwithfirebase.activity_main.frag_alarm.FavAlarmFragment
+import com.example.igwithfirebase.activity_main.frag_gallery.SearchGalleryFragment
+import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
-import com.example.igwithfirebase.nav.AddPhotoActivity
-import com.example.igwithfirebase.nav.FavAlarmFragment
-import com.example.igwithfirebase.nav.homeFeed.HomeFeedFragment
-import com.example.igwithfirebase.nav.SearchGalleryFragment
-import com.example.igwithfirebase.nav.userAccount.UserAccountFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
             if (isGranted) {
                 Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
                 Log.d("STARBUCKS", "You got the permission!")
-                startActivity(Intent(this, AddPhotoActivity::class.java))
+                startActivity(Intent(this, PostActivity::class.java))
             } else {
                 Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
                 Log.d("STARBUCKS", "You didn't get the permission!")
@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             1 -> {
                 if ((grantResults.size > 0) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("STARBUCKS", "You finally got the permission!")
-                    startActivity(Intent(this, AddPhotoActivity::class.java))
+                    startActivity(Intent(this, PostActivity::class.java))
                 }
             }
             else -> {

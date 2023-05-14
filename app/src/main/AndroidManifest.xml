@@ -16,7 +16,7 @@
         android:theme="@style/Theme.IgWithFirebase"
         tools:targetApi="31">
         <activity
-            android:name=".nav.AddPhotoActivity"
+            android:name=".activity_main.act_post.PostActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activity_main.MainActivity"
             android:exported="true" />
     </application>
 

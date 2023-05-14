@@ -1,4 +1,4 @@
-package com.example.igwithfirebase.nav.model
+package com.example.igwithfirebase.model
 
 data class FollowDTO(
     var name: String,

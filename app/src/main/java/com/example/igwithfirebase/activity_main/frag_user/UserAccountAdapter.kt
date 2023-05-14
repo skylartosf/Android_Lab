@@ -1,13 +1,11 @@
-package com.example.igwithfirebase.nav.userAccount
+package com.example.igwithfirebase.activity_main.frag_user
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.bumptech.glide.Glide
 import com.example.igwithfirebase.databinding.ItemUserAccountBinding
-import com.facebook.FacebookSdk.getApplicationContext
 import com.google.firebase.firestore.DocumentSnapshot
 
 class UserAccountAdapter(

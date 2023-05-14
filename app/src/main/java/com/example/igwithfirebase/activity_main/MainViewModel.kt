@@ -1,13 +1,13 @@
-package com.example.igwithfirebase
+package com.example.igwithfirebase.activity_main
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.igwithfirebase.nav.model.FollowDTO
-import com.example.igwithfirebase.nav.model.PostDTO
+import com.example.igwithfirebase.Variables.Constants
+import com.example.igwithfirebase.model.FollowDTO
+import com.example.igwithfirebase.model.PostDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,13 +38,6 @@ class MainViewModel: ViewModel() {
 
     var theirPosts = arrayListOf<PostDTO>()
     var theirPostUids = arrayListOf<String>()
-
-    // firestore에 업로드 시 만들 document의 기본 정보
-    val defPostDto = PostDTO(
-        uid = auth.currentUser?.uid,
-        userIdEmail = auth.currentUser?.email
-    )
-    var defProfileDto = hashMapOf("imgUrl" to "hi")
 
     // 로그인 해서 MainActivity로 처음 들어왔을 때
     // fs 내 지금 들어온 유저 정보(FollowDto)가 존재하지 않으면 doc을 하나 생성한다

@@ -1,19 +1,17 @@
-package com.example.igwithfirebase.nav.homeFeed
+package com.example.igwithfirebase.activity_main.frag_home
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.igwithfirebase.MainActivity
 import com.example.igwithfirebase.R
+import com.example.igwithfirebase.activity_main.MainActivity
+import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 import com.example.igwithfirebase.databinding.ItemHomeFeedBinding
-import com.example.igwithfirebase.nav.UserAccountFragment
-import com.example.igwithfirebase.nav.model.FollowDTO
-import com.example.igwithfirebase.nav.model.PostDTO
+import com.example.igwithfirebase.model.FollowDTO
+import com.example.igwithfirebase.model.PostDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration

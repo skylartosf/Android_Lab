@@ -1,25 +1,13 @@
-package com.example.igwithfirebase.nav.homeFeed
+package com.example.igwithfirebase.activity_main.frag_home
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.igwithfirebase.MainViewModel
-import com.example.igwithfirebase.R
-import com.example.igwithfirebase.databinding.ActivityLoginBinding
-import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
+import com.example.igwithfirebase.activity_main.MainViewModel
 import com.example.igwithfirebase.databinding.FragmentHomeFeedBinding
-import com.example.igwithfirebase.databinding.ItemHomeFeedBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 
 class HomeFeedFragment : Fragment() {
     private var _binding: FragmentHomeFeedBinding? = null

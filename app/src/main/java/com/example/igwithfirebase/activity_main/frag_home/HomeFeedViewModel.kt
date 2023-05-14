@@ -1,4 +1,4 @@
-package com.example.igwithfirebase.nav.homeFeed
+package com.example.igwithfirebase.activity_main.frag_home
 
 import androidx.lifecycle.ViewModel
 

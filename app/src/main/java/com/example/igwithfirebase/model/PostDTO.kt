@@ -1,4 +1,4 @@
-package com.example.igwithfirebase.nav.model
+package com.example.igwithfirebase.model
 
 data class PostDTO(
     val uid: String? = null, // 이미지를 올린 유저의 uid
