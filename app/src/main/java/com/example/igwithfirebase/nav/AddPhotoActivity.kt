@@ -76,38 +76,39 @@ class AddPhotoActivity : AppCompatActivity() {
                 val imgFileName = "IMAGE_" + postTime + "." + getFileExtension(photoFilePath)
 
                 // 업로드할 위치 + /파일명
-                val storageRef = fbStorage.reference.child("images/$imgFileName")
+                val storageRef = fbStorage.reference.child("posts/$imgFileName")
 
                 Log.d("PhotoPicker", "[storageRef] $storageRef")
                 //Log.d("PhotoPicker", "[photoFilePath] $photoFilePath")
                 //Log.d("PhotoPicker", "[file] $file")
 
                 // 1. firebase storage에 이미지 업로드
-                storageRef.putFile(photoUri!!)
-                    .addOnSuccessListener { taskSnapshot ->
+                storageRef.putFile(photoUri!!).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                // 2. firesstore에 해당 이미지를 참조하는 document(postDTO) 생성
+                                val postDTO = PostDTO(
+                                    uid = auth.currentUser?.uid,
+                                    userIdEmail = auth.currentUser?.email,
+                                    timestamp = System.currentTimeMillis(),
+                                    imgUrl = uri.toString(),
+                                    content = binding.etContent.text.toString()
+                                )
 
-                        // 2. firesstore에 해당 이미지를 참조하는 document(postDTO) 생성
-                        val postDTO = PostDTO(
-                            uid = auth.currentUser?.uid,
-                            userIdEmail = auth.currentUser?.email,
-                            timestamp = System.currentTimeMillis(),
-                            imgUrl = taskSnapshot.metadata?.reference?.downloadUrl.toString(),
-                            content = binding.etContent.text.toString()
-                        )
-
-                        // 게시물 데이터 생성
-                        firestore.collection("images").document().set(postDTO)
-                            .addOnSuccessListener {
-                                dialog.cancel()
-                                Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
-                                finish()
+                                // 게시물 데이터 생성
+                                firestore.collection("posts").document().set(postDTO)
+                                    .addOnSuccessListener {
+                                        dialog.cancel()
+                                        Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
+                                        finish()
+                                    }
                             }
-                    }
-                    .addOnFailureListener {
-                        dialog.cancel()
-                        finish()
-                        Toast.makeText(this, getString(R.string.upload_fail), Toast.LENGTH_SHORT).show()
-                        Log.d("PhotoPicker", "Fail to upload on firestore: ${it.message}")
+                        }
+                        else {
+                            dialog.cancel()
+                            finish()
+                            Toast.makeText(this, getString(R.string.upload_fail), Toast.LENGTH_SHORT).show()
+                        }
                     }
             }
             else {

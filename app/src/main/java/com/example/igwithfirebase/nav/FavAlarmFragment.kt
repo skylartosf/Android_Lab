@@ -9,24 +9,10 @@ import android.view.ViewGroup
 import com.example.igwithfirebase.R
 
 class FavAlarmFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = FavAlarmFragment()
-    }
-
-    private lateinit var viewModel: FavAlarmViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_fav_alarm, container, false)
     }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(FavAlarmViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
-
 }

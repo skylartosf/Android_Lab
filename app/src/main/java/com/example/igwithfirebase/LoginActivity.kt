@@ -132,24 +132,16 @@ class LoginActivity : AppCompatActivity() {
     private fun handleResults(task: Task<GoogleSignInAccount>) {
         if (task.isSuccessful) {
             val account: GoogleSignInAccount? = task.result
-            if (account != null) {
-                updateUI(account)
-            }
+            if (account != null) updateUI(account)
         }
-        else {
-            Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
-        }
+        else Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun updateUI(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) {
-                moveToMainPage(auth.currentUser)
-            }
-            else {
-                Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
-            }
+            if (it.isSuccessful) moveToMainPage(auth.currentUser)
+            else Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -7,7 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.igwithfirebase.MainViewModel
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.databinding.ActivityLoginBinding
 import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
@@ -19,49 +22,32 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
 class HomeFeedFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = HomeFeedFragment()
-    }
-
-    private lateinit var viewModel: HomeFeedViewModel
-
-    private var user: FirebaseUser? = null
-    private var firestore: FirebaseFirestore? = null
-    private var imgSnapshot: ListenerRegistration? = null
-
-    private lateinit var fragBinding: FragmentHomeFeedBinding
-    private lateinit var itemBinding: ItemHomeFeedBinding
+    private var _binding: FragmentHomeFeedBinding? = null
+    private val binding get() = _binding!!
+    private val mainVm: MainViewModel by activityViewModels() // ViewModel 초기화
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        user = FirebaseAuth.getInstance().currentUser
-        firestore = FirebaseFirestore.getInstance()
-
-        fragBinding = FragmentHomeFeedBinding.inflate(layoutInflater)
-        itemBinding = ItemHomeFeedBinding.inflate(layoutInflater)
-
-        return inflater.inflate(R.layout.fragment_home_feed, container, false)
+        _binding = FragmentHomeFeedBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        fragBinding.rvHomeFeed.layoutManager = LinearLayoutManager(activity)
-        fragBinding.rvHomeFeed.adapter = HomeFeedRvAdapter()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        /*
+        _binding?.rvHomeFeed?.adapter = HomeFeedAdapter(
+            mainVm.myUid,
+            null,
+            mainVm.theirPosts,
+            mainVm.theirPostUids
+        )
+        */
     }
 
-    override fun onStop() {
-        super.onStop()
-        imgSnapshot?.remove()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
-    /*
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(HomeFeedViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
-    */
 }

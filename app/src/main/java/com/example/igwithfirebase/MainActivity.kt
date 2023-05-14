@@ -10,20 +10,18 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
 import com.example.igwithfirebase.nav.AddPhotoActivity
 import com.example.igwithfirebase.nav.FavAlarmFragment
 import com.example.igwithfirebase.nav.homeFeed.HomeFeedFragment
 import com.example.igwithfirebase.nav.SearchGalleryFragment
-import com.example.igwithfirebase.nav.UserAccountFragment
-import com.google.firebase.auth.FirebaseAuth
+import com.example.igwithfirebase.nav.userAccount.UserAccountFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
+    val mainVm by viewModels<MainViewModel>()  // ViewModel 초기화
 
     private val permResultLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(
@@ -38,17 +36,16 @@ class MainActivity : AppCompatActivity() {
                 Log.d("STARBUCKS", "You didn't get the permission!")
             }
         }
-
-    private var permCheck = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        auth = FirebaseAuth.getInstance()
+
+        mainVm.createUserFollowDtoOrNot()
 
         setToolbar()
         setNavigation()
-        binding.bottomNav.selectedItemId = R.id.nav_home
+        binding.bottomNav.selectedItemId = R.id.nav_account
 
         /* 앨범 접근 권한 요청
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -91,7 +88,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setToolbar() {
-        setSupportActionBar(binding.myToolbar)
+        mainVm.tbTitle.observe(this) {
+            binding.myToolbar.title = mainVm.tbTitle.value
+        }
+        setSupportActionBar(binding.myToolbar) // toolbar를 activity의 app bar로 지정
         if (supportActionBar != null) { // activate back button on toolbar
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> {
-                    replaceFragment(HomeFeedFragment())
+                    //replaceFragment(HomeFeedFragment())
                     return@setOnItemSelectedListener true
                 }
 
@@ -145,12 +145,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_account -> {
-                    val accountFrag = UserAccountFragment()
-                    val uid = FirebaseAuth.getInstance().currentUser?.uid
-                    val bundle = Bundle()
-                    bundle.putString("destinationUid", uid)
-                    accountFrag.arguments = bundle
-                    replaceFragment(accountFrag)
+                    mainVm.curUid = mainVm.myUid
+                    mainVm.getUserEmail()
+                    Log.d("STARBUCKS", "myUid is ${mainVm.myUid}, curUid is ${mainVm.curUid}")
+                    replaceFragment(UserAccountFragment())
                     return@setOnItemSelectedListener true
                 }
 
