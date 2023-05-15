@@ -11,4 +11,5 @@ object Constants {
     const val DTO_PROFILE_IMG = "PROFILE_IMG_DTO"
 
     const val DIALOG_UPLOADING = "Please wait while uploading your post!"
+    const val DIALOG_UPLOADING_PROFILE = "Please wait while uploading your profile!"
 }

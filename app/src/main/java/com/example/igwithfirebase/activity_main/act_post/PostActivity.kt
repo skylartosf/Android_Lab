@@ -26,10 +26,22 @@ class PostActivity : AppCompatActivity() {
     private var localImgUri: Uri? = null
     private lateinit var dialog: Dialog
 
+    // Registers a photo picker activity launcher in single-select mode
+    private val pickOneImg =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            // Callback is invoked after the user selects a media item or closes the photo picker
+            if (uri != null) {
+                Log.d("STARBUCKS", "Selected URI: $uri")
+                localImgUri = uri
+                binding.ivPhoto.load(uri)
+            } else Log.d("STARBUCKS", "No media selected")
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        dialog = Dialog(this)
 
         registerClickEvents()
         registerObservers()
@@ -37,22 +49,10 @@ class PostActivity : AppCompatActivity() {
 
     private fun registerObservers() {
         fin.observe(this) {
+            Log.d("STARBUCKS", "THIS is [fin observer] from PostActivity")
             dialog.cancel()
             Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
             finish()
-        }
-    }
-
-    // Registers a photo picker activity launcher in single-select mode
-    val pickOneImg = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        // Callback is invoked after the user selects a media item or closes the photo picker
-        if (uri != null) {
-            Log.d("STARBUCKS", "Selected URI: $uri")
-            localImgUri = uri
-            binding.ivPhoto.load(uri)
-        }
-        else {
-            Log.d("STARBUCKS", "No media selected")
         }
     }
 
@@ -65,7 +65,6 @@ class PostActivity : AppCompatActivity() {
 
         // '사진 올리기' 버튼 클릭 시
         binding.btnUpload.setOnClickListener {
-            dialog = Dialog(this)
             showLoadingDialog(dialog, Constants.DIALOG_UPLOADING)
 
             val postTime = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
@@ -78,8 +77,10 @@ class PostActivity : AppCompatActivity() {
             //Log.d("PhotoPicker", "[file] $file")
 
             if (storageRef != null) {
-                uploadImageToStorage(storageRef, localImgUri,
-                    Constants.DTO_POST, binding.etContent.text.toString())
+                uploadImageToStorage(
+                    storageRef, localImgUri,
+                    Constants.DTO_POST, binding.etContent.text.toString()
+                )
             }
         }
     }

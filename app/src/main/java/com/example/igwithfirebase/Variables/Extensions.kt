@@ -70,6 +70,7 @@ private fun linkUrlToFirestore_profile(storageUrl: String) {
         ?.addOnCompleteListener { fsTask ->
             if (fsTask.isSuccessful) {
                 Log.d("STARBUCKS", "Successfully upload the profile.")
+                _fin.value = true
             } else {
                 Log.d("STARBUCKS", "Failed to upload the profile.")
             }

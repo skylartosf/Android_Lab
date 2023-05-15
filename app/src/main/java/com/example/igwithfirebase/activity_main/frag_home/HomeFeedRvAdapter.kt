@@ -88,8 +88,8 @@ class HomeFeedRvAdapter(val firestore: FirebaseFirestore?) : RecyclerView.Adapte
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: PostDTO, profileUrl: Any?, position: Int) {
-            binding.ivProfile.load(profileUrl) // profile 사진
-            binding.ivProfile.setOnClickListener {// 클릭 시 UserAccountFragment로 이동
+            binding.cvProfile.load(profileUrl) // profile 사진
+            binding.cvProfile.setOnClickListener {// 클릭 시 UserAccountFragment로 이동
                 val fragment = UserAccountFragment()
                 val bundle = Bundle()
 

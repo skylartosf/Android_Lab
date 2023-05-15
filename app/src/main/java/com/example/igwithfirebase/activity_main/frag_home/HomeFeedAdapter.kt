@@ -31,7 +31,7 @@ class HomeFeedAdapter(
         with((holder as HomeFeedViewHolder).binding) {
             // profile 사진
             //ivProfile.load(profileUrl) // profile 사진
-            ivProfile.setOnClickListener {// 클릭 시 UserAccountFragment로 이동
+            cvProfile.setOnClickListener {// 클릭 시 UserAccountFragment로 이동
                 val fragment = UserAccountFragment()
                 val bundle = Bundle()
 

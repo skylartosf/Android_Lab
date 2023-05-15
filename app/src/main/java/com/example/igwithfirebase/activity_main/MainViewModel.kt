@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.igwithfirebase.Variables.Constants
+import com.example.igwithfirebase.Variables.UserVars
 import com.example.igwithfirebase.model.FollowDTO
 import com.example.igwithfirebase.model.PostDTO
 import com.google.firebase.auth.FirebaseAuth
@@ -20,12 +21,8 @@ class MainViewModel: ViewModel() {
     private val _tbTitle: MutableLiveData<String> = MutableLiveData()
     val tbTitle: LiveData<String> = _tbTitle
 
-    val storage = FirebaseStorage.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
     var imgSnapshot: ListenerRegistration? = null
 
-    val auth = FirebaseAuth.getInstance()!!
-    val myUid = auth.currentUser?.uid!!
     var curUid: String? = null // 현재 위치한 UserAccountFragment의 uid
     var curName: String? = null // curUid의 name(email)
 
@@ -43,12 +40,16 @@ class MainViewModel: ViewModel() {
     // fs 내 지금 들어온 유저 정보(FollowDto)가 존재하지 않으면 doc을 하나 생성한다
     fun createUserFollowDtoOrNot() {
         Log.d("STARBUCKS", "I'm inside createUserFollowDtoOrNot()")
-        firestore.collection("users")?.document(myUid)?.get()
+        UserVars.firestore!!.collection("users")?.document(UserVars.myUid!!)?.get()
             ?.addOnSuccessListener {
                 if (!it.exists()) {
                     Log.d("STARBUCKS", "You are not in the db. Let me make a follow DTO for you.")
-                    firestore.collection("users").document(myUid)
-                        .set( FollowDTO(name = auth.currentUser?.email!!) )
+                    //val followDto = FollowDTO(uid = UserVars.myUid!!)
+                    UserVars.firestore!!.collection("users").document(UserVars.myUid!!)
+                        .set( FollowDTO(
+                            uid = UserVars.myUid!!,
+                            name = UserVars.auth!!.currentUser?.email
+                        ))
                         .addOnSuccessListener {
                             Log.d("STARBUCKS", "You've made a new doc to 'users' collection in fs!")
                         }
@@ -58,7 +59,7 @@ class MainViewModel: ViewModel() {
 
     // curUid 유저의 email을 얻는다
     fun getUserEmail() {
-        firestore.collection("users")?.document(curUid!!)?.get()
+        UserVars.firestore!!.collection("users")?.document(curUid!!)?.get()
             ?.addOnSuccessListener {
                 curName = it.data?.get("name") as String?
                 _tbTitle.value = curName // 툴바 title 변경
@@ -75,7 +76,7 @@ class MainViewModel: ViewModel() {
     // 1. collection("users") : 각 유저의 following, follower 목록이 담겨있다
     // 거기서 내 following 목록을 가져온다 -> 그 목록을 바탕으로 그들이 쓴 post 정보 가져오기
     fun showPostsOnHomeFeed() {
-        firestore.collection("users")?.document(myUid!!)?.get()?.addOnCompleteListener { task ->
+        UserVars.firestore!!.collection("users")?.document(UserVars.myUid!!)?.get()?.addOnCompleteListener { task ->
             if (task.isSuccessful) { // '나'의 follow 정보(following, follower)를 찾았다
                 val myFollowInfo = task.result.toObject(FollowDTO::class.java)
                 if (myFollowInfo?.followings != null) { // 그럼 내 following 사람들이 작성한 정보를 찾는다
@@ -90,7 +91,7 @@ class MainViewModel: ViewModel() {
 
     // 내 followings가 쓴 글(postDTO)을 찾아 theirPosts, theirPostUids 구성
     fun getPostsByMyFollowings(iFollow: MutableMap<String, Boolean>?) {
-        imgSnapshot = firestore?.collection("posts")?.orderBy("timestamp")
+        imgSnapshot = UserVars.firestore!!.collection("posts")?.orderBy("timestamp")
             ?.addSnapshotListener { querySnapshot, fbFsException -> // querySnapshot은 전체 게시물(postDTO)을 가져왔다
                 theirPosts.clear()
                 theirPostUids.clear()
@@ -110,7 +111,7 @@ class MainViewModel: ViewModel() {
 
     // 내가 쓴 글들을 찾아 myPosts 구성
     fun getPostsByCurUid() {
-        firestore?.collection("posts")
+        UserVars.firestore!!.collection("posts")
             ?.whereEqualTo("uid", curUid)?.orderBy("timestamp")
             ?.addSnapshotListener { qs, ex ->
                 if (qs == null) return@addSnapshotListener
@@ -120,7 +121,7 @@ class MainViewModel: ViewModel() {
 
     // [UserAccountFragment] 나의 프로필 사진을 가져온다
     fun getProfile() {
-        firestore.collection("profileImages").document(myUid)
+        UserVars.firestore!!.collection("profileImages").document(UserVars.myUid!!)
             .get().addOnSuccessListener {
                 Log.d("STARBUCKS", "I've got...${it.data.toString()}")
                 if (it.data != null)
@@ -128,10 +129,11 @@ class MainViewModel: ViewModel() {
             }
     }
 
+    /*
     // [UserAccountFragment] 나의 프로필 사진을 바꾸겠다 (새로운 사진 파일 위치 = uri)
     fun changeProfile(uri: Uri) {
-        var filename = myUid + "." + "png"
-        var storageRef = storage.reference.child("profileImages/$filename")
+        var filename = UserVars.myUid + "." + "png"
+        var storageRef = UserVars.storage!!.reference.child("profileImages/$filename")
         Log.d("STARBUCKS", "[storageRef] $storageRef")
 
         // 새로운 프로필 사진을 storage에 업로드한다
@@ -223,4 +225,5 @@ class MainViewModel: ViewModel() {
                 }
             }
     }
+    */
 }

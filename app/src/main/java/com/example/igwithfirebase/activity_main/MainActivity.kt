@@ -14,6 +14,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.example.igwithfirebase.activity_main.act_post.PostActivity
 import com.example.igwithfirebase.R
+import com.example.igwithfirebase.Variables.UserVars
 import com.example.igwithfirebase.activity_main.frag_alarm.FavAlarmFragment
 import com.example.igwithfirebase.activity_main.frag_gallery.SearchGalleryFragment
 import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
@@ -145,9 +146,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_account -> {
-                    mainVm.curUid = mainVm.myUid
+                    mainVm.curUid = UserVars.myUid
                     mainVm.getUserEmail()
-                    Log.d("STARBUCKS", "myUid is ${mainVm.myUid}, curUid is ${mainVm.curUid}")
+                    Log.d("STARBUCKS", "myUid is ${UserVars.myUid}, curUid is ${mainVm.curUid}")
                     replaceFragment(UserAccountFragment())
                     return@setOnItemSelectedListener true
                 }

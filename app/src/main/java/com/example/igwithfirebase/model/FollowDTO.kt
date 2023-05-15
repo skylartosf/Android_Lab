@@ -1,7 +1,8 @@
 package com.example.igwithfirebase.model
 
 data class FollowDTO(
-    var name: String,
+    val uid: String,
+    var name: String? = null,
     var followerCnt: Int = 0,
     var followers: MutableMap<String, Boolean> = HashMap(),
     var followingCnt: Int = 0,
