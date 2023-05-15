@@ -18,24 +18,36 @@ import com.example.igwithfirebase.activity_main.frag_gallery.SearchGalleryFragme
 import com.example.igwithfirebase.activity_main.frag_home.HomeFeedFragment
 import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     val mainVm by viewModels<MainViewModel>()  // ViewModel 초기화
 
     // 갤러리 접근 권한 받아오기
-    private val permResultLauncher: ActivityResultLauncher<String> =
+    private val galleryResultLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, PostActivity::class.java))
-                binding.bottomNav.selectedItemId = R.id.nav_account
-            } else {
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
+        ) {
+            when (it) {
+                true ->
+                    Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
+                false ->
+                    Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
             }
         }
+
+    val permResult = object: PermissionListener {
+        override fun onPermissionGranted() {
+            Toast.makeText(this@MainActivity, "Permission Granted", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this@MainActivity, PostActivity::class.java))
+        }
+        override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+            Toast.makeText(this@MainActivity, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -113,7 +125,11 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         //TODO: showRationaleDialog() not working
                     } else { // ask for permission
-                        permResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        //galleryResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        TedPermission.create()
+                            .setPermissionListener(permResult)
+                            .setPermissions(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            .check()
                     }
                     return@setOnItemSelectedListener true
                 }
