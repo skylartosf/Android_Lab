@@ -10,25 +10,25 @@
         android:id="@+id/cv_profile"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        app:cardCornerRadius="250dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp">
+        android:layout_marginTop="15dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="250dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="150dp"
             android:layout_height="150dp"
-            app:cardCornerRadius="250dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            app:cardCornerRadius="250dp">
 
             <ImageView
                 android:id="@+id/iv_profile"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:src="@drawable/olaf_rec"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/olaf_rec" />
 
         </androidx.cardview.widget.CardView>
 
@@ -59,10 +59,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:text="12"
             app:layout_constraintEnd_toEndOf="@id/tv_label_post"
             app:layout_constraintStart_toStartOf="@id/tv_label_post"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_post"
-            android:text="12" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_post" />
 
         <TextView
             android:id="@+id/tv_label_follower"
@@ -78,10 +78,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:text="212"
             app:layout_constraintEnd_toEndOf="@id/tv_label_follower"
             app:layout_constraintStart_toStartOf="@id/tv_label_follower"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_follower"
-            android:text="212" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_follower" />
 
         <TextView
             android:id="@+id/tv_label_following"
@@ -97,10 +97,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:text="1234"
             app:layout_constraintEnd_toEndOf="@id/tv_label_following"
             app:layout_constraintStart_toStartOf="@id/tv_label_following"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_following"
-            android:text="1234" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_following" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -119,14 +119,23 @@
         app:layout_constraintStart_toStartOf="@id/cl_label_user_info"
         tools:text="뭐라고 써있어야 할까요?" />
 
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:dividerColor="@color/colorPrimaryDark"
+        app:layout_constraintTop_toBottomOf="@id/cv_profile" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="15dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_logout"
+        app:layout_constraintTop_toBottomOf="@id/divider"
         app:spanCount="3"
         tools:listitem="@layout/item_user_account" />
 

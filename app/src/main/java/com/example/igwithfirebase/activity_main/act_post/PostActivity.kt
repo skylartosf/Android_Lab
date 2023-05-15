@@ -11,13 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import coil.load
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.Variables.Constants
+import com.example.igwithfirebase.Variables.MyCallback
 import com.example.igwithfirebase.Variables.UserVars
-import com.example.igwithfirebase.Variables.fin
 import com.example.igwithfirebase.Variables.getRealPathFromUri
 import com.example.igwithfirebase.Variables.showLoadingDialog
 import com.example.igwithfirebase.Variables.uploadImageToStorage
 import com.example.igwithfirebase.databinding.ActivityPostBinding
-import com.google.common.io.Files.getFileExtension
+import com.google.common.io.Files
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -41,19 +41,11 @@ class PostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPostBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         dialog = Dialog(this)
+        Log.d("ABC", "You've landed on PostActivity")
 
         registerClickEvents()
-        registerObservers()
-    }
-
-    private fun registerObservers() {
-        fin.observe(this) {
-            Log.d("STARBUCKS", "THIS is [fin observer] from PostActivity")
-            dialog.cancel()
-            Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
-            finish()
-        }
     }
 
     private fun registerClickEvents() {
@@ -65,50 +57,37 @@ class PostActivity : AppCompatActivity() {
 
         // '사진 올리기' 버튼 클릭 시
         binding.btnUpload.setOnClickListener {
-            showLoadingDialog(dialog, Constants.DIALOG_UPLOADING)
-
-            val postTime = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-            val photoFilePath = localImgUri?.let { uri -> getRealPathFromUri(uri) }
-            val fileName = "IMAGE_" + postTime + "." + getFileExtension(photoFilePath)
-            val storageRef = UserVars.storage?.reference?.child("posts/$fileName")
-
-            Log.d("STARBUCKS", "[storageRef] $storageRef")
-            //Log.d("PhotoPicker", "[photoFilePath] $photoFilePath")
-            //Log.d("PhotoPicker", "[file] $file")
-
-            if (storageRef != null) {
-                uploadImageToStorage(
-                    storageRef, localImgUri,
-                    Constants.DTO_POST, binding.etContent.text.toString()
-                )
+            if (localImgUri == null) {
+                Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                showLoadingDialog(dialog, Constants.DIALOG_UPLOADING)
+                uploadPost()
             }
         }
     }
 
-    /*
-    private fun getRealPathFromUri(uri: Uri): String? {
-        if (uri.path?.startsWith("/storage") == true) {
-            return uri.path!!
-        }
-        val id = DocumentsContract.getDocumentId(uri).split(":")[1]
-        val columns = arrayOf(MediaStore.Files.FileColumns.DATA)
-        val selection = MediaStore.Files.FileColumns._ID + " = " + id
-        val cursor: Cursor? = contentResolver.query(
-            MediaStore.Files.getContentUri("external"),
-            columns,
-            selection,
-            null,
-            null
+    private fun uploadPost() {
+        val postTime = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val photoFilePath = getRealPathFromUri(this, localImgUri!!)
+        val fileName = "IMAGE_" + postTime + "." + Files.getFileExtension(photoFilePath)
+        val storageRef = UserVars.storage!!.reference.child("posts/$fileName")
+
+        Log.d("ABC", "[storageRef] $storageRef")
+        //Log.d("PhotoPicker", "[photoFilePath] $photoFilePath")
+        //Log.d("PhotoPicker", "[file] $file")
+
+        uploadImageToStorage(storageRef, localImgUri!!, Constants.DTO_POST,
+            binding.etContent.text.toString(), object: MyCallback() {
+                override fun uploadPost(b: Boolean) {
+                    super.uploadPost(b)
+                    if (b) {
+                        dialog.cancel()
+                        Toast.makeText(applicationContext, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                }
+            }
         )
-        try {
-            val columnIndex: Int = cursor?.getColumnIndex(columns[0]) ?: 0
-            if (cursor!!.moveToFirst()) {
-                return cursor.getString(columnIndex)
-            }
-        } finally {
-            cursor!!.close()
-        }
-        return null
     }
-    */
 }

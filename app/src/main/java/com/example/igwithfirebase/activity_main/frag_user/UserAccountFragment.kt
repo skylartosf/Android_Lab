@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -19,12 +20,15 @@ import coil.load
 import com.example.igwithfirebase.LoginActivity
 import com.example.igwithfirebase.R
 import com.example.igwithfirebase.Variables.Constants
+import com.example.igwithfirebase.Variables.MyCallback
 import com.example.igwithfirebase.Variables.UserVars
-import com.example.igwithfirebase.Variables.fin
+import com.example.igwithfirebase.Variables.getCurMyPosts
+import com.example.igwithfirebase.Variables.getUidProfileImg
 import com.example.igwithfirebase.Variables.showLoadingDialog
 import com.example.igwithfirebase.Variables.uploadImageToStorage
 import com.example.igwithfirebase.activity_main.MainViewModel
 import com.example.igwithfirebase.databinding.FragmentUserAccountBinding
+import com.example.igwithfirebase.model.PostDTO
 
 
 class UserAccountFragment : Fragment() {
@@ -32,13 +36,15 @@ class UserAccountFragment : Fragment() {
     private val binding get() = _binding!!
     private val mainVm: MainViewModel by activityViewModels()  // ViewModel 초기화
     private lateinit var dialog: Dialog
-    lateinit var myAdapter: UserAccountAdapter
+    private lateinit var myAdapter: UserAccountAdapter
 
     // 프로필 사진 변경 시 앨범에서 사진 1개 선택해오기
     private val pickOneImg =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) changeProfileImg(uri)
-            else Log.e("STARBUCKS", "No image for profile selected")
+            if (uri != null) {
+                changeProfileImg(uri)
+            }
+            else Log.e("ABC", "No image for profile selected")
         }
 
     override fun onCreateView(
@@ -46,40 +52,44 @@ class UserAccountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentUserAccountBinding.inflate(inflater, container, false)
-        dialog = context?.let { Dialog(it) }!! // 여기 말고 다른 데 배치하면 initialize 안 됐대,,왜지
+        dialog = context?.let { Dialog(it) }!!
 
         registerClickEvents()
-        registerObservers()
-
-        setDefaultAccountPage()
-        mainVm.getProfile()
-        mainVm.getPostsByCurUid()
+        setDefaultAccountPageUi()
 
         return binding.root
     }
 
+    /*
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        registerObservers()
     }
+
 
     private fun registerObservers() {
-        // profile 사진 (있으면) display
-        mainVm.myProfileUrl.observe(viewLifecycleOwner) {
-            if (mainVm.myProfileUrl != null) binding.ivProfile.load(mainVm.myProfileUrl.value)
+        // display 프로필 사진
+        profileImg.observe(viewLifecycleOwner) {
+            Log.d("ABC", "[observer from UserAccountFrag] profileImg became $it")
+            if (it != null) { // [get] 프로필 사진 일 때
+                binding.ivProfile.load(it)
+            }
+            /*
+            else { // [set] 프로필 사진 일 때
+                dialog.cancel()
+            }*/
         }
 
-        // adapter 설정
-        mainVm.queryResult.observe(viewLifecycleOwner) {
-            myAdapter = UserAccountAdapter(it)
-            binding.rv.adapter = myAdapter
+        // display curUid의 posts
+        posts.observe(viewLifecycleOwner) {
+            Log.d("ABC", "[observer from UserAccountFrag] posts became $it")
+            if (it != null) {
+                myAdapter = UserAccountAdapter(posts.value!!)
+                binding.rv.adapter = myAdapter
+                myAdapter.notifyDataSetChanged()
+            }
         }
-
-        // profile 사진 변경 시: 반영됨
-        fin.observe(viewLifecycleOwner) {
-            Log.d("STARBUCKS", "THIS is [fin observer] from UserAccountFragment")
-            dialog.cancel()
-        }
-    }
+    }*/
 
     private fun registerClickEvents() {
         // 프로필 사진 클릭 시: 프로필 사진 변경 가능
@@ -95,21 +105,49 @@ class UserAccountFragment : Fragment() {
         }
     }
 
-    private fun changeProfileImg(uri: Uri?) {
+    // [set] myUid의 프로필 사진을 설정한다(바꾼다)
+    private fun changeProfileImg(uri: Uri) {
         activity?.showLoadingDialog(dialog, Constants.DIALOG_UPLOADING_PROFILE)
 
-        Log.d("STARBUCKS", "[changeProfileImg] $uri")
+        Log.d("ABC", "[changeProfileImg] $uri")
         //mainVm.changeProfile(uri)
 
-        context?.uploadImageToStorage(
-            UserVars.storage!!.reference.child("profileImages/${UserVars.myUid}"),
-            uri, Constants.DTO_PROFILE_IMG, null
-        )
         binding.ivProfile.load(uri)
+        uploadImageToStorage(
+            UserVars.storage!!.reference.child("profileImages/${UserVars.myUid}"),
+            uri, Constants.DTO_PROFILE_IMG, null, object: MyCallback() {
+                override fun uploadProfile(b: Boolean) {
+                    super.uploadProfile(b)
+                    if (b) {
+                        dialog.cancel()
+                        Toast.makeText(requireContext(), "프사 변경 성공", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        )
     }
 
-    private fun setDefaultAccountPage() {
-        Log.d("STARBUCKS", "curName is ${mainVm.curName}")
+    private fun setDefaultAccountPageUi() {
+        activity?.showLoadingDialog(dialog, "Setting up user page!")
+
+        // display 프로필 사진
+        getUidProfileImg(mainVm.curUid!!, object: MyCallback() {
+            override fun getProfile(b: Boolean, url: String) {
+                super.getProfile(b, url)
+                binding.ivProfile.load(url)
+                dialog.cancel()
+            }
+        })
+
+        // display 내 posts
+        getCurMyPosts(listOf(mainVm.curUid!!), object: MyCallback() {
+            override fun getMyPosts(b: Boolean, list: List<PostDTO>) {
+                super.getMyPosts(b, list)
+                myAdapter = UserAccountAdapter(list)
+                binding.rv.adapter = myAdapter
+                myAdapter.notifyDataSetChanged()
+            }
+        })
 
         // 1. 현재 user 페이지 == 내 페이지 -> 로그아웃 버튼, 툴바 기본 설정
         if (mainVm.curUid != null && mainVm.curUid == UserVars.myUid) {

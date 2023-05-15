@@ -15,37 +15,41 @@ import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
 import com.example.igwithfirebase.model.PostDTO
 import com.google.firebase.storage.StorageReference
 
-private val _fin: MutableLiveData<Boolean> = MutableLiveData()
-val fin: LiveData<Boolean> = _fin
+/*
+// (curUid가) 작성한 posts
+private val _posts: MutableLiveData<List<PostDTO>?> = MutableLiveData()
+val posts: LiveData<List<PostDTO>?> = _posts
+
+// (누군가의) profile 사진이 storage 내 저장된 위치
+private val _profileImg: MutableLiveData<String?> = MutableLiveData()
+val profileImg: LiveData<String?> = _profileImg
+*/
 
 // Firebase 내 storageRef 위치로 uri를 업로드한다
-fun Context.uploadImageToStorage(
-    storageRef: StorageReference,
-    imgUri: Uri?,
-    command: String,
-    postContent: String?
+fun uploadImageToStorage(
+    storageRef: StorageReference, imgUri: Uri,
+    command: String, postContent: String?, callback: MyCallback
 ) {
-    imgUri?.let {
-        // 1. firebase - storage 에 이미지 파일(imgUri) 업로드
-        storageRef.putFile(it).addOnCompleteListener { task ->
-            if (task.isSuccessful) { // storage에 업로드 성공
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    when (command) {
-                        Constants.DTO_POST ->
-                            linkUrlToFirestore_post(uri.toString(), postContent!!)
-
-                        Constants.DTO_PROFILE_IMG ->
-                            linkUrlToFirestore_profile(uri.toString())
-                    }
+    // 1. firebase - storage 에 이미지 파일(imgUri) 업로드
+    storageRef.putFile(imgUri).addOnCompleteListener { task ->
+        if (task.isSuccessful) { // storage에 업로드 성공
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                when (command) {
+                    Constants.DTO_POST ->
+                        linkUrlToFirestore_post(uri.toString(), postContent!!, callback)
+                    Constants.DTO_PROFILE_IMG ->
+                        linkUrlToFirestore_profile(uri.toString(), callback)
                 }
-            } else { // storage에 업로드 실패
-                Log.d("STARBUCKS", "firebase/firestore에 업로드 실패")
             }
+        } else { // storage에 업로드 실패
+            Log.d("STARBUCKS", "firebase/firestore에 업로드 실패")
         }
     }
 }
 
-private fun linkUrlToFirestore_post(storageUrl: String, postContent: String) {
+private fun linkUrlToFirestore_post(
+    storageUrl: String, postContent: String, callback: MyCallback
+) {
     val postDto = PostDTO(
         uid = UserVars.myUid,
         userIdEmail = UserVars.auth?.currentUser?.email,
@@ -53,37 +57,41 @@ private fun linkUrlToFirestore_post(storageUrl: String, postContent: String) {
         imgUrl = storageUrl,
         content = postContent
     )
-    UserVars.firestore?.collection("posts")?.add(postDto)
-        ?.addOnCompleteListener { fsTask ->
+    UserVars.firestore!!.collection("posts").add(postDto)
+        .addOnCompleteListener { fsTask ->
             if (fsTask.isSuccessful) {
                 Log.d("STARBUCKS", "Successfully upload the post.")
-                _fin.value = true
+                callback.uploadPost(true)
             } else {
                 Log.d("STARBUCKS", "Failed to upload the post.")
+                callback.uploadPost(false)
             }
         }
 }
 
-private fun linkUrlToFirestore_profile(storageUrl: String) {
-    var profileDto = hashMapOf("imgUrl" to storageUrl)
-    UserVars.firestore?.collection("profileImages")?.document(UserVars.myUid!!)?.set(profileDto)
-        ?.addOnCompleteListener { fsTask ->
+private fun linkUrlToFirestore_profile(
+    storageUrl: String, callback: MyCallback
+) {
+    val profileDto = hashMapOf("imgUrl" to storageUrl)
+    UserVars.firestore!!.collection("profileImages").document(UserVars.myUid!!).set(profileDto)
+        .addOnCompleteListener { fsTask ->
             if (fsTask.isSuccessful) {
                 Log.d("STARBUCKS", "Successfully upload the profile.")
-                _fin.value = true
+                callback.uploadProfile(true)
             } else {
                 Log.d("STARBUCKS", "Failed to upload the profile.")
+                callback.uploadProfile(false)
             }
         }
 }
 
-fun Context.getRealPathFromUri(uri: Uri): String? {
+fun getRealPathFromUri(context: Context, uri: Uri): String? {
     if (uri.path?.startsWith("/storage") == true) return uri.path!!
 
     val id = DocumentsContract.getDocumentId(uri).split(":")[1]
     val columns = arrayOf(MediaStore.Files.FileColumns.DATA)
     val selection = MediaStore.Files.FileColumns._ID + " = " + id
-    val cursor: Cursor? = contentResolver.query(
+    val cursor: Cursor? = context.contentResolver.query(
         MediaStore.Files.getContentUri("external"),
         columns,
         selection,
@@ -113,4 +121,30 @@ fun Activity.showLoadingDialog(dialog: Dialog, s: String) {
     }
     dialog.window?.setAttributes(params)
     dialog.show()
+}
+
+// [get] uids가 작성한 posts 목록을 구성한다
+fun getCurMyPosts(
+    uids: List<String>, callback: MyCallback
+) {
+    var result = mutableListOf<PostDTO>()
+    UserVars.firestore!!.collection("posts").get().addOnSuccessListener { qs ->
+        for (doc in qs.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
+            val postUid = doc.data!!.get("uid")
+            if (uids.contains(postUid)) result.add(doc.toObject(PostDTO::class.java)!!)
+        }
+        if (result.isNotEmpty()) callback.getMyPosts(true, result)
+    }
+}
+
+// [get] uid의 프로필 사진을 가져온다
+fun getUidProfileImg(
+    uid: String, callback: MyCallback
+) {
+    UserVars.firestore!!.collection("profileImages").document(uid)
+        .get().addOnSuccessListener {
+            if (it.data != null) {
+                callback.getProfile(true, it.data!!["imgUrl"].toString())
+            }
+        }
 }
