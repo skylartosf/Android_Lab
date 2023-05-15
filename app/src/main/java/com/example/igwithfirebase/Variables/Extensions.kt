@@ -128,12 +128,13 @@ fun getCurMyPosts(
     uids: List<String>, callback: MyCallback
 ) {
     var result = mutableListOf<PostDTO>()
-    UserVars.firestore!!.collection("posts").get().addOnSuccessListener { qs ->
-        for (doc in qs.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
-            val postUid = doc.data!!.get("uid")
-            if (uids.contains(postUid)) result.add(doc.toObject(PostDTO::class.java)!!)
-        }
-        if (result.isNotEmpty()) callback.getMyPosts(true, result)
+    UserVars.firestore!!.collection("posts").get()
+        .addOnSuccessListener { qs ->
+            for (doc in qs.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
+                val postUid = doc.data!!.get("uid")
+                if (uids.contains(postUid)) result.add(doc.toObject(PostDTO::class.java)!!)
+            }
+            if (result.isNotEmpty()) callback.getMyPosts(true, result)
     }
 }
 
@@ -141,10 +142,12 @@ fun getCurMyPosts(
 fun getUidProfileImg(
     uid: String, callback: MyCallback
 ) {
-    UserVars.firestore!!.collection("profileImages").document(uid)
-        .get().addOnSuccessListener {
-            if (it.data != null) {
-                callback.getProfile(true, it.data!!["imgUrl"].toString())
+    UserVars.firestore!!.collection("profileImages").document(uid).get()
+        .addOnCompleteListener {
+            if (it.isSuccessful) {
+                Log.d("ABC", "[getUidProfileImg] ${it.result.data}")
+                if (it.result.data != null) callback.getProfile(true, it.result.data!!["imgUrl"].toString())
+                else callback.getProfile(false, "")
             }
         }
 }

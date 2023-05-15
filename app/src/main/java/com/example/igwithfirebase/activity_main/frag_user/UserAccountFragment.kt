@@ -57,6 +57,9 @@ class UserAccountFragment : Fragment() {
         registerClickEvents()
         setDefaultAccountPageUi()
 
+        myAdapter = UserAccountAdapter()
+        binding.rv.adapter = myAdapter
+
         return binding.root
     }
 
@@ -134,7 +137,7 @@ class UserAccountFragment : Fragment() {
         getUidProfileImg(mainVm.curUid!!, object: MyCallback() {
             override fun getProfile(b: Boolean, url: String) {
                 super.getProfile(b, url)
-                binding.ivProfile.load(url)
+                if (b) binding.ivProfile.load(url)
                 dialog.cancel()
             }
         })
@@ -143,9 +146,7 @@ class UserAccountFragment : Fragment() {
         getCurMyPosts(listOf(mainVm.curUid!!), object: MyCallback() {
             override fun getMyPosts(b: Boolean, list: List<PostDTO>) {
                 super.getMyPosts(b, list)
-                myAdapter = UserAccountAdapter(list)
-                binding.rv.adapter = myAdapter
-                myAdapter.notifyDataSetChanged()
+                myAdapter.submitList(list.toMutableList())
             }
         })
 
