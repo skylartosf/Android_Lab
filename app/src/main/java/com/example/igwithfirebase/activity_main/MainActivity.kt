@@ -20,7 +20,7 @@ import com.example.igwithfirebase.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    val mainVm by viewModels<MainViewModel>()  // ViewModel 초기화
+    private val mainVm by viewModels<MainViewModel>()  // ViewModel 초기화
 
     private val startPostActivityOnResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        //mainVm.createUserFollowDtoOrNot()
 
         setToolbar()
         setNavigation()
@@ -71,12 +69,9 @@ class MainActivity : AppCompatActivity() {
                     return@setOnItemSelectedListener true
                 }
                 R.id.nav_account -> {
-                    Log.d("ABC", "Selected account page in bottom nav")
-                    Log.d("ABC", "myUid = ${UserVars.myUid}")
                     UserVars.myUid = UserVars.auth.currentUser!!.uid
                     mainVm.curUid = UserVars.myUid
                     mainVm.getUserEmail(mainVm.curUid!!)
-                    Log.d("ABC", "curUid = ${mainVm.curUid}")
                     replaceFragment(UserAccountFragment())
                     return@setOnItemSelectedListener true
                 }

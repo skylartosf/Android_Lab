@@ -118,27 +118,13 @@ fun getCurMyPosts(
 ) {
     var result = mutableListOf<PostDTO>()
     UserVars.firestore!!.collection("posts").get()
-        .addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.d("ABC", "[getCurMyPosts] ${it.result.documents}")
-                if (it.result.documents.isNotEmpty()) {
-                    for (doc in it.result.documents) {
-                        val by = doc.data!!["uid"]
-                        if (uids.contains(by))
-                            result.add(doc.toObject(PostDTO::class.java)!!)
-                    }
-                    callback.getMyPosts(true, result)
-                }
-                else callback.getMyPosts(true, listOf())
-            }
-        }
-            /*
-        .addOnSuccessListener { qs ->
-            for (doc in qs.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
-                val postUid = doc.data!!.get("uid")
+        .addOnSuccessListener { queryResult ->
+            for (doc in queryResult.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
+                val postUid = doc.data!!["uid"]
                 if (uids.contains(postUid)) result.add(doc.toObject(PostDTO::class.java)!!)
             }
-            if (result.isNotEmpty()) callback.getMyPosts(true, result)*/
+            callback.getMyPosts(result)
+        }
 }
 
 // [get] uid의 프로필 사진을 가져온다
@@ -151,32 +137,6 @@ fun getUidProfileImg(
                 Log.d("ABC", "[getUidProfileImg] ${it.result.data}")
                 if (it.result.data != null) callback.getProfile(true, it.result.data!!["imgUrl"].toString())
                 else callback.getProfile(false, "")
-            }
-        }
-}
-
-// 로그인 해서 MainActivity로 처음 들어왔을 때
-// fs 내 지금 들어온 유저 정보(FollowDto)가 존재하지 않으면 doc을 하나 생성한다
-fun createUserDoc() {
-    Log.d("ABC", "I'm inside createUserFollowDtoOrNot()")
-    UserVars.firestore!!.collection("users").document(UserVars.myUid!!).get()
-        .addOnCompleteListener {
-            if (it.isSuccessful && it.result.data != null)
-                Log.d("ABC", "You're already in our db.")
-            else {
-                Log.d("ABC", "Creating new user doc")
-                val followDto = FollowDTO(uid = UserVars.myUid!!)
-                val email = UserVars.auth!!.currentUser!!.email
-                if (email != null) followDto.name = email
-
-                UserVars.firestore!!.collection("users").document(UserVars.myUid!!)
-                    .set(followDto)
-                    .addOnCompleteListener {
-                        if (it.isSuccessful)
-                            Log.d("ABC", "You've made a new doc to 'users' collection in fs!")
-                        else
-                            Log.d("ABC", "Something went wrong")
-                    }
             }
         }
 }

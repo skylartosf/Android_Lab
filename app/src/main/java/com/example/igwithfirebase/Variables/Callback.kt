@@ -10,13 +10,13 @@ interface MyCallbackInterface {
     // [get] get a user profile
     fun getProfile(b: Boolean, url: String)
     // [get] get posts I posted
-    fun getMyPosts(b: Boolean, list: List<PostDTO>)
+    fun getMyPosts(list: List<PostDTO>)
 }
 
 abstract class MyCallback : MyCallbackInterface {
     override fun uploadPost(b: Boolean) { }
     override fun uploadProfile(b: Boolean) { }
     override fun getProfile(b: Boolean, url: String) { }
-    override fun getMyPosts(b: Boolean, list: List<PostDTO>) { }
+    override fun getMyPosts(list: List<PostDTO>) { }
 }
 

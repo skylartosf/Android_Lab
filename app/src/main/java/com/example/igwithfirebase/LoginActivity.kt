@@ -8,11 +8,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.igwithfirebase.Variables.Constants
 import com.example.igwithfirebase.Variables.UserVars
-import com.example.igwithfirebase.Variables.createUserDoc
 import com.example.igwithfirebase.activity_main.MainActivity
 import com.example.igwithfirebase.databinding.ActivityLoginBinding
+import com.example.igwithfirebase.model.FollowDTO
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -96,7 +95,7 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.INVISIBLE
                 if (task.isSuccessful) { // 아이디 생성이 성공했을 경우
                     Toast.makeText(this, R.string.signup_complete, Toast.LENGTH_SHORT).show()
-                    moveToMainPage(auth.currentUser) // 다음 페이지 호출
+                    readyToMoveNextPage(auth.currentUser) // 다음 페이지 호출
                 }
                 else if (task.exception?.message.isNullOrEmpty()) { // 회원가입 에러가 발생했을 경우
                     Toast.makeText(this, task.exception!!.message, Toast.LENGTH_SHORT).show()
@@ -113,7 +112,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 binding.progressBar.visibility = View.INVISIBLE
                 if (task.isSuccessful) { // 로그인 성공
-                    moveToMainPage(auth.currentUser)
+                    readyToMoveNextPage(auth.currentUser)
                 }
                 else { // 로그인 실패
                     Toast.makeText(this, task.exception!!.message, Toast.LENGTH_SHORT).show()
@@ -144,7 +143,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUI(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) moveToMainPage(auth.currentUser)
+            if (it.isSuccessful) readyToMoveNextPage(auth.currentUser)
             else Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
         }
     }
@@ -189,7 +188,7 @@ class LoginActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.INVISIBLE
                 if (task.isSuccessful) {
                     Log.d("FACEBOOK", "signInWithCredential:success")
-                    moveToMainPage(auth.currentUser)
+                    readyToMoveNextPage(auth.currentUser)
                 }
                 else {
                     Log.w("FACEBOOK", "signInWithCredential:fail", task.exception)
@@ -213,7 +212,7 @@ class LoginActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     // User is signed in.
                     Log.d("TWITTER", "twitterLogin():success")
-                    moveToMainPage(auth.currentUser)
+                    readyToMoveNextPage(auth.currentUser)
                 }
                 .addOnFailureListener {
                     Log.d("TWITTER", "twitterLogin():fail - $it")
@@ -231,24 +230,18 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 // User is signed in.
                 Log.d("TWITTER", "signInWithProvider():success")
-                moveToMainPage(auth.currentUser)
+                readyToMoveNextPage(auth.currentUser)
             }
             .addOnFailureListener {
                 Log.d("TWITTER", "signInWithProvider():fail - $it")
             }
     }
 
-    private fun moveToMainPage(user: FirebaseUser?) {
+    private fun readyToMoveNextPage(user: FirebaseUser?) {
         // user is signed in
         if (user != null) {
             initUserVars()
-            Toast.makeText(this, getString(R.string.signin_complete), Toast.LENGTH_SHORT).show()
-            val intent: Intent = Intent(this, MainActivity::class.java)
-            //intent.putExtra("email", user.email)
-            //intent.putExtra("name", user.displayName)
-            //intent.putExtra("profile", user.photoUrl.toString())
-            startActivity(intent)
-            finish()
+            createUserDoc()
         }
     }
 
@@ -259,6 +252,44 @@ class LoginActivity : AppCompatActivity() {
             auth = FirebaseAuth.getInstance()
             myUid = auth!!.currentUser!!.uid!!
         }
-        createUserDoc()
+    }
+
+    // 로그인 해서 MainActivity로 처음 들어왔을 때
+    // fs 내 지금 들어온 유저 정보(FollowDto)가 존재하지 않으면 doc을 하나 생성한다
+    fun createUserDoc() {
+        Log.d("ABC", "Executing...[Extensions.kt] createUserFollowDtoOrNot()")
+        UserVars.firestore!!.collection("users").document(UserVars.myUid!!).get()
+            .addOnCompleteListener {
+                if (it.isSuccessful && it.result.data != null) {
+                    Log.d("ABC", "You're already in our db.")
+                    moveToMainActivity()
+                }
+                else {
+                    Log.d("ABC", "Creating new user doc")
+                    val followDto = FollowDTO(uid = UserVars.myUid!!)
+                    val email = UserVars.auth!!.currentUser!!.email
+                    if (email != null) followDto.name = email
+
+                    UserVars.firestore!!.collection("users").document(UserVars.myUid)
+                        .set(followDto)
+                        .addOnSuccessListener {
+                            Log.d("ABC", "New user data was created in the firestore db")
+                            moveToMainActivity()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.d("ABC", "Something went wrong: ${e.message}")
+                        }
+                }
+            }
+    }
+
+    private fun moveToMainActivity() {
+        Toast.makeText(this, getString(R.string.signin_complete), Toast.LENGTH_SHORT).show()
+        val intent: Intent = Intent(this, MainActivity::class.java)
+        //intent.putExtra("email", user.email)
+        //intent.putExtra("name", user.displayName)
+        //intent.putExtra("profile", user.photoUrl.toString())
+        startActivity(intent)
+        finish()
     }
 }

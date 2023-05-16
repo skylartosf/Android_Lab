@@ -41,9 +41,7 @@ class UserAccountFragment : Fragment() {
     // 프로필 사진 변경 시 앨범에서 사진 1개 선택해오기
     private val pickOneImg =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) {
-                changeProfileImg(uri)
-            }
+            if (uri != null) changeProfileImg(uri)
             else Log.e("ABC", "No image for profile selected")
         }
 
@@ -63,37 +61,6 @@ class UserAccountFragment : Fragment() {
         return binding.root
     }
 
-    /*
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        registerObservers()
-    }
-
-
-    private fun registerObservers() {
-        // display 프로필 사진
-        profileImg.observe(viewLifecycleOwner) {
-            Log.d("ABC", "[observer from UserAccountFrag] profileImg became $it")
-            if (it != null) { // [get] 프로필 사진 일 때
-                binding.ivProfile.load(it)
-            }
-            /*
-            else { // [set] 프로필 사진 일 때
-                dialog.cancel()
-            }*/
-        }
-
-        // display curUid의 posts
-        posts.observe(viewLifecycleOwner) {
-            Log.d("ABC", "[observer from UserAccountFrag] posts became $it")
-            if (it != null) {
-                myAdapter = UserAccountAdapter(posts.value!!)
-                binding.rv.adapter = myAdapter
-                myAdapter.notifyDataSetChanged()
-            }
-        }
-    }*/
-
     private fun registerClickEvents() {
         // 프로필 사진 클릭 시: 프로필 사진 변경 가능
         binding.cvProfile.setOnClickListener {
@@ -111,11 +78,8 @@ class UserAccountFragment : Fragment() {
     // [set] myUid의 프로필 사진을 설정한다(바꾼다)
     private fun changeProfileImg(uri: Uri) {
         activity?.showLoadingDialog(dialog, Constants.DIALOG_UPLOADING_PROFILE)
-
-        Log.d("ABC", "[changeProfileImg] $uri")
-        //mainVm.changeProfile(uri)
-
         binding.ivProfile.load(uri)
+
         uploadImageToStorage(
             UserVars.storage!!.reference.child("profileImages/${UserVars.myUid}"),
             uri, Constants.DTO_PROFILE_IMG, null, object: MyCallback() {
@@ -142,16 +106,16 @@ class UserAccountFragment : Fragment() {
             }
         })
 
-        // display 내 posts
+        // display my posts
         getCurMyPosts(listOf(mainVm.curUid!!), object: MyCallback() {
-            override fun getMyPosts(b: Boolean, list: List<PostDTO>) {
-                super.getMyPosts(b, list)
+            override fun getMyPosts(list: List<PostDTO>) { // 빈 리스트가 올 수도 있다~
+                super.getMyPosts(list)
                 myAdapter.submitList(list.toMutableList())
             }
         })
 
         // 1. 현재 user 페이지 == 내 페이지 -> 로그아웃 버튼, 툴바 기본 설정
-        if (mainVm.curUid != null && mainVm.curUid == UserVars.myUid) {
+        if (mainVm.curUid != "" && mainVm.curUid == UserVars.myUid) {
             with(binding!!) {
                 btnLogout.text = getString(R.string.signout)
                 btnLogout.setOnClickListener {
