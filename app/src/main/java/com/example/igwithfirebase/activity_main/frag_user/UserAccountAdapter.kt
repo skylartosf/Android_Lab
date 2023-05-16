@@ -1,17 +1,16 @@
 package com.example.igwithfirebase.activity_main.frag_user
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.example.igwithfirebase.Variables.PostDtoDiffCallback
 import com.example.igwithfirebase.databinding.ItemUserAccountBinding
 import com.example.igwithfirebase.model.PostDTO
 
 class UserAccountAdapter
-    : ListAdapter<PostDTO, RecyclerView.ViewHolder>(UserAccountDiffCallback) {
+    : ListAdapter<PostDTO, RecyclerView.ViewHolder>(PostDtoDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return UserAccountViewHolder(
@@ -26,15 +25,6 @@ class UserAccountAdapter
         }
     }
 
-    class UserAccountViewHolder(val binding: ItemUserAccountBinding): RecyclerView.ViewHolder(binding.root)
-}
-
-object UserAccountDiffCallback: DiffUtil.ItemCallback<PostDTO>() {
-    override fun areContentsTheSame(oldItem: PostDTO, newItem: PostDTO): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areItemsTheSame(oldItem: PostDTO, newItem: PostDTO): Boolean {
-        return oldItem.imgUrl == newItem.imgUrl
-    }
+    class UserAccountViewHolder(val binding: ItemUserAccountBinding)
+        : RecyclerView.ViewHolder(binding.root)
 }

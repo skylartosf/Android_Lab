@@ -10,8 +10,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
 import com.example.igwithfirebase.databinding.DialogUploadLoadingBinding
-import com.example.igwithfirebase.model.FollowDTO
 import com.example.igwithfirebase.model.PostDTO
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.StorageReference
 
 // Firebase 내 storageRef 위치로 uri를 업로드한다
@@ -41,12 +41,12 @@ private fun linkUrlToFirestore_post(
 ) {
     val postDto = PostDTO(
         uid = UserVars.myUid,
-        userIdEmail = UserVars.auth?.currentUser?.email,
+        userIdEmail = UserVars.auth.currentUser!!.email,
         timestamp = System.currentTimeMillis(),
         imgUrl = storageUrl,
         content = postContent
     )
-    UserVars.firestore!!.collection("posts").add(postDto)
+    UserVars.firestore.collection("posts").add(postDto)
         .addOnCompleteListener { fsTask ->
             if (fsTask.isSuccessful) {
                 Log.d("STARBUCKS", "Successfully upload the post.")
@@ -62,7 +62,7 @@ private fun linkUrlToFirestore_profile(
     storageUrl: String, callback: MyCallback
 ) {
     val profileDto = hashMapOf("imgUrl" to storageUrl)
-    UserVars.firestore!!.collection("profileImages").document(UserVars.myUid!!).set(profileDto)
+    UserVars.firestore.collection("profileImages").document(UserVars.myUid).set(profileDto)
         .addOnCompleteListener { fsTask ->
             if (fsTask.isSuccessful) {
                 Log.d("STARBUCKS", "Successfully upload the profile.")
@@ -103,21 +103,18 @@ fun Activity.showLoadingDialog(dialog: Dialog, s: String) {
     dialog.setContentView(binding.root)
     dialog.setCancelable(false)
     binding.tvContent.text = s
-    val params: WindowManager.LayoutParams? = dialog.window?.attributes ?: null
-    if (params != null) {
-        params.width = WindowManager.LayoutParams.MATCH_PARENT
-        params.height = WindowManager.LayoutParams.WRAP_CONTENT
-    }
+    val params: WindowManager.LayoutParams = dialog.window?.attributes!!
+    params.width = WindowManager.LayoutParams.MATCH_PARENT
+    params.height = WindowManager.LayoutParams.WRAP_CONTENT
     dialog.window?.setAttributes(params)
     dialog.show()
 }
 
 // [get] uids가 작성한 posts 목록을 구성한다
-fun getCurMyPosts(
-    uids: List<String>, callback: MyCallback
-) {
-    var result = mutableListOf<PostDTO>()
-    UserVars.firestore!!.collection("posts").get()
+fun getCurMyPosts(uids: List<String>, callback: MyCallback) {
+    val result = mutableListOf<PostDTO>()
+    UserVars.firestore.collection("posts")
+        .orderBy("timestamp", Query.Direction.DESCENDING).get()
         .addOnSuccessListener { queryResult ->
             for (doc in queryResult.documents) { // 각 post를 살펴본다, 해당 uid가 uids 중 하나인지.
                 val postUid = doc.data!!["uid"]
@@ -128,15 +125,26 @@ fun getCurMyPosts(
 }
 
 // [get] uid의 프로필 사진을 가져온다
-fun getUidProfileImg(
-    uid: String, callback: MyCallback
-) {
-    UserVars.firestore!!.collection("profileImages").document(uid).get()
+fun getUidProfileImg(uid: String, callback: MyCallback) {
+    UserVars.firestore.collection("profileImages").document(uid).get()
         .addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d("ABC", "[getUidProfileImg] ${it.result.data}")
                 if (it.result.data != null) callback.getProfile(true, it.result.data!!["imgUrl"].toString())
                 else callback.getProfile(false, "")
             }
+        }
+}
+
+// uid의 following 목록(uid list)을 구한다
+fun getFollowings(uid: String, callback: MyCallback) {
+    var result: MutableList<String>
+    UserVars.firestore.collection("users").document(uid).get()
+        .addOnSuccessListener { doc ->
+            val map = doc.data!!["followings"] as HashMap<String, Boolean>
+            result = map.keys.toMutableList()
+            result[0] = result[0].substring(1) //TODO: 첫번째 원소에 공백(" ")이 들어가던데..원래 그런가?
+            Log.d("ABC", "[getFollowings] id[0] is: <${result[0]}>")
+            callback.afterGettingFollowings(result.toList())
         }
 }

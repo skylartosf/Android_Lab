@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.igwithfirebase.R
-import com.example.igwithfirebase.Variables.Constants
 import com.example.igwithfirebase.Variables.UserVars
 import com.example.igwithfirebase.activity_main.act_post.PostActivity
 import com.example.igwithfirebase.activity_main.frag_alarm.FavAlarmFragment
@@ -17,7 +16,6 @@ import com.example.igwithfirebase.activity_main.frag_gallery.SearchGalleryFragme
 import com.example.igwithfirebase.activity_main.frag_home.HomeFeedFragment
 import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
-import com.google.firebase.firestore.auth.User
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -77,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                     with(mainVm) {
                         curUid = UserVars.myUid
                         getUserEmail(UserVars.myEmail, UserVars.myUid)
-                        //setToolbarTitle(UserVars.myEmail)
+                        //setToolbarTitle(UserVars.myEmail) //TODO: 왜 이렇게 하면 안 돼?
                     }
                     replaceFragment(UserAccountFragment())
                     return@setOnItemSelectedListener true
