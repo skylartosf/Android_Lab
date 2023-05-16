@@ -9,7 +9,7 @@ import com.example.igwithfirebase.model.FollowDTO
 import com.example.igwithfirebase.model.PostDTO
 
 class MainViewModel: ViewModel() {
-    // 툴바에 쓰여질 이름
+    // 툴바에 쓰여질 이름 - mainActivity에서 observe 중
     private val _tbTitle: MutableLiveData<String> = MutableLiveData()
     val tbTitle: LiveData<String> = _tbTitle
 
@@ -20,28 +20,23 @@ class MainViewModel: ViewModel() {
     var theirPostUids = arrayListOf<String>()
 
     // curUid 유저의 email을 얻는다
-    fun getUserEmail(uid: String) {
-        UserVars.firestore!!.collection("users").document(uid).get()
-            ?.addOnCompleteListener {
-                if (it.isSuccessful) {
-                    if (it.result.data!!["name"] != null) {
-                        curName = it.result.data!!["name"] as String
-                        _tbTitle.value = curName
+    fun getUserEmail(myEmail: String?, uid: String) {
+        //if (myEmail != null) _tbTitle.value = myEmail!! // 바텀네비로 UserAccountFrag 이동할 때
+        //else { // 타 유저의 UserAccountFrag 이동할 때
+            UserVars.firestore!!.collection("users").document(uid).get()
+                ?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        if (it.result.data!!["name"] != "") {
+                            curName = it.result.data!!["name"] as String
+                            _tbTitle.value = curName
+                        }
+                        else _tbTitle.value = "love skylar!"
                     }
-                    else _tbTitle.value = "love skylar!"
                 }
-                else {
+        //}
+    }
 
-                }
-            }
-                /*
-            ?.addOnSuccessListener {
-                Log.e("ABC", "it is <$it>, it.data is <$it.data>, it.metadata is <${it.metadata}>, it.id is <${it.id}>, it[name] is <{${it["name"]}}>")
-                if (it["name"] != null) {
-                    curName = it["name"] as String
-                    _tbTitle.value = curName // 툴바 title 변경
-                }
-                else _tbTitle.value = "good"
-            }*/
+    fun setToolbarTitle(s: String) {
+        _tbTitle.value = s
     }
 }

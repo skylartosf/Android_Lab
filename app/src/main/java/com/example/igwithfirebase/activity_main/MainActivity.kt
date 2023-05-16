@@ -17,6 +17,7 @@ import com.example.igwithfirebase.activity_main.frag_gallery.SearchGalleryFragme
 import com.example.igwithfirebase.activity_main.frag_home.HomeFeedFragment
 import com.example.igwithfirebase.activity_main.frag_user.UserAccountFragment
 import com.example.igwithfirebase.databinding.ActivityMainBinding
+import com.google.firebase.firestore.auth.User
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -34,15 +35,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        mainVm.tbTitle.observe(this) {
+            Log.d("ABC", "[MainActivity] toolbar title was : ${binding.myToolbar.title}")
+            Log.d("ABC", "[MainActivity] observing tbTitle at mainVm : $it")
+            binding.myToolbar.title = it
+        }
+
         setToolbar()
         setNavigation()
         binding.bottomNav.selectedItemId = R.id.nav_account
     }
 
     private fun setToolbar() {
-        mainVm.tbTitle.observe(this) {
-            binding.myToolbar.title = mainVm.tbTitle.value
-        }
         setSupportActionBar(binding.myToolbar) // toolbar를 activity의 app bar로 지정
         if (supportActionBar != null) { // activate back button on toolbar
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -69,9 +73,12 @@ class MainActivity : AppCompatActivity() {
                     return@setOnItemSelectedListener true
                 }
                 R.id.nav_account -> {
-                    UserVars.myUid = UserVars.auth.currentUser!!.uid
-                    mainVm.curUid = UserVars.myUid
-                    mainVm.getUserEmail(mainVm.curUid!!)
+                    Log.d("ABC", "[MainActivity] nav_account is selected! at setOnItemSelected 리스너")
+                    with(mainVm) {
+                        curUid = UserVars.myUid
+                        getUserEmail(UserVars.myEmail, UserVars.myUid)
+                        //setToolbarTitle(UserVars.myEmail)
+                    }
                     replaceFragment(UserAccountFragment())
                     return@setOnItemSelectedListener true
                 }

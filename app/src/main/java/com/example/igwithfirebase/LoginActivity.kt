@@ -251,6 +251,8 @@ class LoginActivity : AppCompatActivity() {
             firestore = FirebaseFirestore.getInstance()
             auth = FirebaseAuth.getInstance()
             myUid = auth!!.currentUser!!.uid!!
+            if (auth!!.currentUser!!.email != null) myEmail = auth!!.currentUser!!.email!!
+            else myEmail = ""
         }
     }
 

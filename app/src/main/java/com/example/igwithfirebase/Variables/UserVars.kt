@@ -9,4 +9,5 @@ object UserVars {
     lateinit var firestore: FirebaseFirestore
     lateinit var auth: FirebaseAuth
     lateinit var myUid: String
+    lateinit var myEmail: String
 }
