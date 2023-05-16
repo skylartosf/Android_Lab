@@ -5,8 +5,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 object UserVars {
-    var storage: FirebaseStorage? = null
-    var firestore: FirebaseFirestore? = null
-    var auth: FirebaseAuth? = null
-    var myUid: String? = null
+    lateinit var storage: FirebaseStorage
+    lateinit var firestore: FirebaseFirestore
+    lateinit var auth: FirebaseAuth
+    lateinit var myUid: String
 }

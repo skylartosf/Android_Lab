@@ -1,6 +1,8 @@
 package com.example.igwithfirebase.activity_main.act_post
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +18,7 @@ import com.example.igwithfirebase.Variables.UserVars
 import com.example.igwithfirebase.Variables.getRealPathFromUri
 import com.example.igwithfirebase.Variables.showLoadingDialog
 import com.example.igwithfirebase.Variables.uploadImageToStorage
+import com.example.igwithfirebase.activity_main.MainActivity
 import com.example.igwithfirebase.databinding.ActivityPostBinding
 import com.google.common.io.Files
 import java.text.SimpleDateFormat
@@ -84,6 +87,8 @@ class PostActivity : AppCompatActivity() {
                     if (b) {
                         dialog.cancel()
                         Toast.makeText(applicationContext, getString(R.string.upload_success), Toast.LENGTH_SHORT).show()
+
+                        setResult(Activity.RESULT_OK, Intent())
                         finish()
                     }
                 }

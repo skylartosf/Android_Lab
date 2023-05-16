@@ -12,4 +12,6 @@ object Constants {
 
     const val DIALOG_UPLOADING = "Please wait while uploading your post!"
     const val DIALOG_UPLOADING_PROFILE = "Please wait while uploading your profile!"
+
+    const val NAV_3 = 3
 }

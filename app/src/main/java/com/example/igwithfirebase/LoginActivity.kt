@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.igwithfirebase.Variables.Constants
 import com.example.igwithfirebase.Variables.UserVars
+import com.example.igwithfirebase.Variables.createUserDoc
 import com.example.igwithfirebase.activity_main.MainActivity
 import com.example.igwithfirebase.databinding.ActivityLoginBinding
 import com.facebook.AccessToken
@@ -256,7 +257,8 @@ class LoginActivity : AppCompatActivity() {
             storage = FirebaseStorage.getInstance()
             firestore = FirebaseFirestore.getInstance()
             auth = FirebaseAuth.getInstance()
-            myUid = auth!!.currentUser?.uid ?: ""
+            myUid = auth!!.currentUser!!.uid!!
         }
+        createUserDoc()
     }
 }
